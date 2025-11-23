@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Choose Your Own Adventure</title>
+   <link rel="stylesheet" href="style.css">
+    <style>
+
+    
+        html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent; 
+    overflow: auto; /* ← Missing semicolon */
+    font-family: 'Georgia', serif;
+    color: #8d521b;
+    position: relative;
+    text-shadow:
+        0 0 5px #8d521b,
+        0 0 10px #d68b3f,
+        0 0 20px #f4c27a,
+        0 0 30px #f4c27a;
+}
+
+
+        /*  this backgrounddd */
+        .scroll-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 250vh;
+            z-index: 0; /* behind quiz content */
+            background: url('images/scroll.jpg') center top/cover no-repeat;
+            pointer-events: none;
+            transform-origin: top;
+            transform: scaleY(0); /* start hidden */
+            animation: scrollUnroll 1s cubic-bezier(.77,0,.18,1) forwards;
+        }
+
+        @keyframes scrollUnroll {
+            0% { transform: scaleY(0); }
+            100% { transform: scaleY(1); }
+        }
+
+        /* quiz container stuf */
+        .quiz-container {
+            background: transparent;
+            padding: 48px 32px;
+            border-radius: 32px;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            margin: 0 auto;
+            z-index: 2;
+            box-shadow: none;
+            overflow: visible;
+            transition: transform 0.7s cubic-bezier(.77,0,.18,1), opacity 0.5s;
+            opacity: 1;
+            transform: scaleY(1);
+        }
+        .quiz-container.unroll {
+            opacity: 0;
+            transform: scaleY(0.7);
+        }
+
+        /* text */
+        .typewriter-text {
+            min-height: 2.5em;
+            font-size: 1.3em;
+            margin-bottom: 24px;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1.5em;
+            letter-spacing: 0.02em;
+            font-family: 'Roboto', serif;
+            color: #644d14;
+            text-shadow: 0 0 8px #eabf48, 0 0 2px #fff;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 16px;
+        }
+
+  .option-button {
+    background-color: #f6f1e7;
+    border: 2px solid #eabf48;
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin: 8px 0;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  .option-button:hover {
+    background-color: #f0dba0;
+  }
+
+  .option-button.active {
+    background-color: #eabf48;
+    color: white;
+    transform: scale(0.97);
+  }
+
+
+        /*  magical buttons animation */
+        .options label {
+            display: block;
+            margin-bottom: 16px;
+            cursor: pointer;
+            padding: 14px 22px;
+            border-radius: 16px;
+            background: rgba(40, 20, 80, 0.35);
+            border: 2px solid transparent;
+            box-shadow: 0 0 16px 2px #eabf48, 0 0 4px 1px #fcf9fb inset;
+            transition: background 0.2s, box-shadow 0.3s, transform 0.15s;
+            font-size: 1.08em;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            animation: optionGlow 2.2s infinite alternate;
+        }
+        @keyframes optionGlow {
+            0% { box-shadow: 0 0 16px 2px #eabf48, 0 0 4px 1px #fcf9fb inset; }
+            100% { box-shadow: 0 0 28px 6px #614a12, 0 0 8px 2px #eabf48 inset; }
+        }
+        .options label:hover {
+            background: rgba(225, 112, 7, 0.25);
+            box-shadow: 0 0 24px 4px #f6eff3, 0 0 8px 2px #eabf48 inset;
+            border-color: #d7e4a1;
+            transform: scale(1.04);
+            animation: none;
+        }
+        .options label:active {
+            box-shadow: 0 0 32px 8px #eabf48, 0 0 12px 4px #f4f2f4 inset;
+            transform: scale(0.98);
+        }
+        .options input[type="radio"] {
+            accent-color: #f9f9f9;
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .glitch-text {
+  
+  font-family: monospace; 
+  font-size: 1.0em;
+  color:#a66d35; 
+  text-shadow: 
+    0.05em 0 0 red,  
+    -0.05em 0 0 cyan;
+  
+
+  animation: glitch-anim 2s infinite linear alternate;
+}
+
+@keyframes glitch-anim {
+  0% {
+    text-shadow: 0.05em 0 0 red, -0.05em 0 0 cyan;
+    transform: translate(0.5px, 0.5px);
+  }
+  20% {
+    text-shadow: -0.05em 0 0 red, 0.05em 0 0 cyan;
+    transform: translate(-0.5px, -0.5px);
+  }
+  40% {
+    text-shadow: 0.08em 0 0 red, -0.08em 0 0 cyan;
+    transform: translate(1px, -1px);
+  }
+  60% {
+    text-shadow: -0.08em 0 0 red, 0.08em 0 0 cyan;
+    transform: translate(-1px, 1px);
+  }
+  80% {
+    text-shadow: 0.03em 0 0 red, -0.03em 0 0 cyan;
+    transform: translate(0.2px, 0.2px);
+  }
+  100% {
+    text-shadow: -0.03em 0 0 red, 0.03em 0 0 cyan;
+    transform: translate(-0.2px, -0.2px);
+  }
+}
+
+        /* action buttonss */
+        button {
+            background: linear-gradient(90deg, #5b460b 0%, #eabf48 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 16px;
+            box-shadow: 0 0 12px 2px #eabf48;
+            transition: background 0.2s, box-shadow 0.3s;
+           
+        }
+        button:hover {
+            background: linear-gradient(90deg, #1e40af 0%, #eabf48 100%);
+            box-shadow: 0 0 24px 6px #bc6620;
+        }
+
+        /*  rresult text */
+        .result {
+            font-size: 1.3em;
+            margin-top: 20px;
+            text-align: center;
+            color: #473e0a;
+            text-shadow: 0 0 12px #eabf48, 0 0 2px #fff;
+            opacity: 0;
+            animation: fadeInResult 1s forwards;
+        }
+        @keyframes fadeInResult {
+            to { opacity: 1; }
+        }
+
+          #dragon-fly {
+      position: fixed;
+      left: -300px;
+      top: 120px;
+      width: 220px;
+      height: auto;
+      z-index: 999;
+      pointer-events: none;
+      transition: left 5.8s cubic-bezier(.77,0,.18,1), top 4.2s cubic-bezier(.77,0,.18,1);
+      opacity: 1;
+    }
+
+   
+      
+.options button.sparkle {
+  position: relative;
+  overflow: hidden;
+}
+
+.options button.sparkle::after {
+  content: '';
+  position: absolute; 
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%);
+  opacity: 0;
+  animation: sparkle 0.6s ease-out forwards;
+}
+
+
+@keyframes sparkle {
+
+  0%   { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+#loadWrap {
+  position:fixed;
+  inset:0;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#00ffff;
+  background:#07111a;
+  z-index:9999;
+}
+
+#startText {
+  font-size:2.6em;
+  margin-bottom:28px;
+  letter-spacing:4px;
+  text-shadow:0 0 12px #00ffff;
+}
+
+#barBox {
+  width:320px;
+  height:22px;
+   border:2px solid #00ffff;
+  border-radius:6px;
+  box-shadow:0 0 8px #00ffff;
+  overflow:hidden;
+  background:#0a1a20;
+}
+
+#barFill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#0ff,#0cc);
+  box-shadow:0 0 12px #00ffff inset;
+}
+
+
+    </style>
+
+        
+        
+    
+</head>
+<body>
+
+  <body>
+
+    
+    <div id="loadWrap">
+        <div id="startText">START</div>
+        <div id="barBox"><div id="barFill"></div></div>
+    </div>
+
+    <!-- loading -->
+
+
+
+
+
+
+
+    <style>
+    
+    .glitch {
+      text-align: center;
+      display: block;
+      font-size: 3rem;
+      color: #473e0a;
+      text-shadow: 0 0 16px #eabf48, 0 0 4px #fff;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+      font-family: 'Georgia', serif;
+      z-index: 101;
+      position: relative;
+      line-height: 1.05;
+   
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      white-space: nowrap;
+      overflow: visible;
+      text-shadow: none;
+      will-change: transform, opacity;
+      mix-blend-mode: screen;
+      opacity: 0.06; /* very subtle */
+    }
+
+ 
+    .glitch::before {
+      color: #ffd07a;
+      transform: translate3d(-1px, 0, 0);
+      filter: blur(.2px);
+      animation: glitchA 3.2s infinite linear;
+    }
+
+    
+    .glitch::after {
+      color: #7fe6ff;
+      transform: translate3d(1px, 0, 0);
+      filter: blur(.2px);
+      animation: glitchB 3.6s infinite linear;
+    }
+
+
+    @keyframes glitchA {
+      0%   { transform: translate3d(-1px, 0, 0); opacity: 0.06; }
+      12%  { transform: translate3d(-3px, -1px, 0); opacity: 0.09; }
+      13%  { transform: translate3d(-1px, 0, 0); opacity: 0.06; }
+      42%  { transform: translate3d(-2px, 1px, 0); opacity: 0.07; }
+      43%  { transform: translate3d(-1px, 0, 0); opacity: 0.06; }
+      82%  { transform: translate3d(-2px, -1px, 0); opacity: 0.08; }
+      100% { transform: translate3d(-1px, 0, 0); opacity: 0.06; }
+    }
+
+    @keyframes glitchB {
+      0%   { transform: translate3d(1px, 0, 0); opacity: 0.05; }
+      18%  { transform: translate3d(3px, 1px, 0); opacity: 0.08; }
+      19%  { transform: translate3d(1px, 0, 0); opacity: 0.05; }
+      51%  { transform: translate3d(2px, -1px, 0); opacity: 0.07; }
+      52%  { transform: translate3d(1px, 0, 0); opacity: 0.05; }
+      88%  { transform: translate3d(2px, 1px, 0); opacity: 0.09; }
+      100% { transform: translate3d(1px, 0, 0); opacity: 0.05; }
+    }
+
+  
+
+
+    .glitch:hover::before,
+    .glitch:hover::after {
+      opacity: 0.12;
+      filter: blur(.1px);
+    }
+    </style>
+
+    <h1 class="glitch" data-text="Where Do Your Morals Lie?">
+      Where Do Your Morals Lie?
+    </h1>
+  <!-- END TITLE -->
+
+    <audio id="music" src="sound/music.wav" preload="auto" loop></audio>
+  <audio id="quill-audio" src="sound/quill.wav" preload="auto"></audio>
+  <audio id="dragon-roar" src="sound/dragon-roar.wav" preload="auto" volume="1"></audio>
+  <audio id="playTwinkle" src="sound/twinkle.wav"></audio>
+
+    
+         <div style="position: fixed; top: 32px; left: 32px; z-index: 100;">
+    <button onclick="playAudio()">Music</button>
+  </div>
+
+  <script>
+    function playAudio() {
+      const audio = document.getElementById("music");
+       audio.volume = 0.3;
+      if (audio.paused) {
+        audio.play().catch(error => {
+          console.error("Playback failed:", error);
+        });
+      } else {
+        audio.pause();
+      }
+    }
+  </script>
+
+
+
+  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 100;">
+    <button onclick="openPopupWindow()" style="
+      background-color: #007bff;
+      color: white;
+      border: none;
+     
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    ">
+      Exit – only once completed and satisfied
+    
+    
+    </button>
+  
+    </div>
+
+  <script>
+    function openPopupWindow() {
+      // pop up]
+
+      const music = document.getElementById('music');
+      if (music && !music.paused) {
+        try {
+          music.pause();
+          music.currentTime = 0;
+        } catch (e) {
+          console.warn('Could not stop music:', e);
+        }
+      }
+
+      
+      window.open(
+        'popup.html',        
+        'popupWindow',      
+        'width=400,height=300,top=200,left=200,resizable=no,scrollbars=yes'
+      );
+    }
+  </script>
+
+
+
+
+         <script>
+// dragon animation and roar//
+window.addEventListener('DOMContentLoaded', function () {
+  let dragon = document.getElementById('dragon-fly');
+  if (!dragon) {
+    dragon = document.createElement('img');
+    dragon.id = 'dragon-fly';
+    dragon.src = 'images/dragon.png';
+    dragon.style.position = 'fixed';
+       dragon.style.left = '-300px';
+    dragon.style.top = '120px';
+    dragon.style.width = '220px';
+    dragon.style.height = 'auto';
+    dragon.style.zIndex = 999;
+    dragon.style.pointerEvents = 'auto';
+     dragon.style.cursor = 'pointer';
+    dragon.style.transition = 'left 4s linear, top 4s linear';
+    
+    dragon.onclick = () => {
+      const roar = document.getElementById('dragon-roar');
+      if (roar) {
+        roar.volume = 1;
+        roar.currentTime = 0;
+        roar.play().catch(err => console.warn("Roar blocked:", err));
+      }
+    };
+    document.body.appendChild(dragon);
+  }
+
+
+  setTimeout(() => {
+    let wingFlapInterval = null;
+    let isWingUp = true;
+
+    function flapWings() {
+   
+   
+      dragon.src = isWingUp ? 'images/dragon_down.png' : 'images/dragon.png';
+      isWingUp = !isWingUp;
+    }
+
+    dragon.style.opacity = 1;
+    dragon.style.left = '-300px';
+    dragon.style.top = '150px';
+
+    wingFlapInterval = setInterval(flapWings, 200);
+
+    setTimeout(() => {
+      dragon.style.transition = 'left 2.5s linear, top 2.5s ease-out';
+      dragon.style.left = 'calc(25vw)';
+      dragon.style.top = '100px';
+    }, 100);
+
+    setTimeout(() => {
+      dragon.style.transition = 'left 2.5s linear, top 2.5s ease-in-out';
+      dragon.style.left = 'calc(50vw - 110px)';
+      dragon.style.top = '80px';
+    }, 2700);
+
+    setTimeout(() => {
+      dragon.style.transition = 'left 5s linear, top 2s ease-in';
+      dragon.style.left = 'calc(100vw + 300px)';
+      dragon.style.top = '40px';
+    }, 8000);
+
+    setTimeout(() => {
+      dragon.style.opacity = 0;
+      clearInterval(wingFlapInterval);
+    }, 13200);
+
+  }, 5000); 
+});
+
+</script>
+
+<script>
+
+
+function playTwinkle() {
+  const audio = document.getElementById("playTwinkle");
+  audio.currentTime = 0;
+  audio.volume = 0.5;
+  audio.play().catch((e) => {
+    console.error("Audio playback failed:", e);
+  });
+}
+
+
+  function selectOption(button) {
+    
+    document.querySelectorAll('.option-button').forEach(b => b.classList.remove('active'));
+
+    button.classList.add('active');
+  }
+</script>
+
+
+</script>
+
+            <div class="scroll-bg"></div>
+    <div class="quiz-container" id="quiz">
+
+    </div>
+     <img id="quill" src="images/quill.png">
+
+     
+    
+    <script>
+    
+         
+       const adventure = {
+      _sideImages: (function(){
+        try {
+        function injectSideImages() {
+          
+          const css = `
+          .page-side-image {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%) translateY(12px);
+            max-width: 30vw;
+            width: auto;
+            height: auto;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            -webkit-user-drag: none;
+            transition: opacity 360ms ease, transform 420ms cubic-bezier(.2,.9,.2,1);
+          }
+          .page-side-image.left { left: 8px; }
+          .page-side-image.right { right: 8px; }
+          .page-side-image.visible {
+            opacity: 0.95;
+            transform: translateY(-50%) translateY(0);
+          }
+          @media (max-width: 900px) {
+            .page-side-image { display: none; }
+          }
+          `;
+          const style = document.createElement('style');
+          style.setAttribute('data-side-images-style','true');
+         
+          style.appendChild(document.createTextNode(css));
+          document.head && document.head.appendChild(style);
+
+          // left image
+          const left = document.createElement('img');
+          left.className = 'page-side-image left';
+         
+         
+          left.alt = '';
+          left.setAttribute('aria-hidden','true');
+          left.src = 'images/left.png';
+
+          // cright image
+          const right = document.createElement('img');
+          right.className = 'page-side-image right';
+          right.alt = '';
+          right.setAttribute('aria-hidden','true');
+          right.src = 'images/right.png';
+
+          
+          (document.body || document.documentElement).appendChild(left);
+          (document.body || document.documentElement).appendChild(right);
+
+          const target = document.querySelector('.quiz-container') || document.getElementById('quiz') || document.body;
+
+          
+
+          const io = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.12) {
+            left.classList.add('visible');
+           
+            right.classList.add('visible');
+            } else {
+            left.classList.remove('visible');
+            right.classList.remove('visible');
+            }
+          });
+          }, { threshold: [0, 0.05, 0.12, 0.25, 0.5] });
+
+          try { io.observe(target); } catch (e) { /* fallback below */ }
+
+          // hide when no view
+          function checkViewportCenter() {
+         
+            const rect = target.getBoundingClientRect();
+          const centerY = window.innerHeight / 2;
+          if (centerY < rect.top || centerY > rect.bottom) {
+            left.classList.remove('visible');
+            right.classList.remove('visible');
+          } else {
+            
+
+            if (!left.classList.contains('visible') && !right.classList.contains('visible')) {
+            left.classList.add('visible');
+            right.classList.add('visible');
+            }
+          }
+          }
+          
+          window.addEventListener('scroll', checkViewportCenter, { passive: true });
+          window.addEventListener('resize', checkViewportCenter);
+
+          
+          setTimeout(checkViewportCenter, 100);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', injectSideImages, { once: true });
+        } else {
+         
+          injectSideImages();
+        }
+        } catch (e) {
+        console.warn('Could not add side images:', e);
+        }
+           return null;
+      })(),
+
+      
+      // 
+      // adventrue starts here!!!!!!!!!
+      // 
+      
+      start: {
+        
+        question: `You have decided to move into the mighty kindgom of Solthair. A dragon of vast power and might has plagued the land of the people. They are in desperate need of help or a saviour. The crown refuses to help since they see no benefit. The king is known to be cruel and unjust, and won’t lend a hand unless there is something in it for him. The people have turned away at the hope of getting anything from him.
+
+      <p> As a new face in town, people come to you to ask for you aid, since they are out of options themselves. You are but a traveller and cannot foresee the best course of action.<p/>
+<span class="glitch-text">
+    You discover that there are six possible decisions you could make. <br>
+    <b>Which one do you choose? (Click on one then press Begin Adventure)</b>
+</span>
+        <img src="images/kingdom.png" style="display:block; margin:24px auto; max-width:440px; border-radius:18px; box-shadow:0 0 24px #eabf48;">`,
+        options: [
+        { text: "Looking at the sad faces of the people, you almost feel like you have a duty to try. You accept.", next: "deon_1", onSelect: function() {
+          // NONE OF THIS WORKED. not bothered to delete whatevs
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('clicked');
+            b.style.background = '';
+            b.style.color = '#bf3767';
+            b.style.transform = '';
+          });
+        
+          const btn = document.querySelector('.choice-btn[data-next=\"deon_1\"]');
+          if (btn) {
+            btn.classList.add('clicked');
+            btn.style.background = '#eabf48';
+            btn.style.color = '#bf3767';
+            btn.style.transform = 'scale(0.98)';
+          }
+          playTwinkle();
+          } },            // deontology
+        { text: "Negotiate that maybe you can use your connections to find someone to help. (Whilst hoping to negotiate the reward, of course)", next: "ego_1", onSelect: function() {
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('clicked');
+            b.style.background = '';
+            b.style.color = '';
+            b.style.transform = '';
+          });
+          const btn = document.querySelector('.choice-btn[data-next=\"ego_1\"]');
+          if (btn) {
+            btn.classList.add('clicked');
+            btn.style.background = '#d08f2a';
+            btn.style.color = '#bf3767';
+            btn.style.transform = 'scale(0.98)';
+          }
+          playTwinkle();
+          } },            // egoism
+        { text: "Call for allies that can help aid you. Perhaps strength in numbers can help. ", next: "virtue_1", onSelect: function() {
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('clicked');
+            b.style.background = '';
+            b.style.color = '';
+            b.style.transform = '';
+          });
+
+          const btn = document.querySelector('.choice-btn[data-next=\"virtue_1\"]');
+          if (btn) {
+            btn.classList.add('clicked');
+      
+             btn.style.background = '#6aa84f';
+            btn.style.color = '#bf3767';
+            btn.style.transform = 'scale(0.98)';
+          }
+          playTwinkle();
+          } },            // virtue 
+        { text: "You decline. Not only can you not help, there is not much you can do against a dragon. There is no point.", next: "nihil_1", onSelect: function() {
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('clicked');
+            b.style.background = '';
+            b.style.color = '';
+            b.style.transform = '';
+          });
+          const btn = document.querySelector('.choice-btn[data-next=\"nihil_1\"]');
+          if (btn) {
+
+            btn.classList.add('clicked');
+            btn.style.background = '#8b8b8b';
+            btn.style.color = '#bf3767';
+            btn.style.transform = 'scale(0.98)';
+          }
+          playTwinkle();
+          } },                          // nihilism
+        { text: "Only if slaying the dragon does indeed save a lot lives will you try to intervene.", next: "util_1", onSelect: function() {
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('clicked');
+            b.style.background = '';
+            b.style.color = '';
+            b.style.transform = '';
+          });
+          const btn = document.querySelector('.choice-btn[data-next=\"util_1\"]');
+          if (btn) {
+            btn.classList.add('clicked');
+            btn.style.background = '#3b82f6';
+            btn.style.color = '#bf3767';
+            btn.style.transform = 'scale(0.98)';
+          }
+          playTwinkle();
+          } },                   // utili
+        { text: "What if the dragon isn't evil? Could we negotiate with the dragon?", next: "rel_1", onSelect: function() {
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('clicked');
+            b.style.background = '';
+            b.style.color = '';
+            b.style.transform = '';
+          });
+          const btn = document.querySelector('.choice-btn[data-next=\"rel_1\"]');
+              if (btn) {
+            btn.classList.add('clicked');
+            btn.style.background = '#7fe6ff';
+            btn.style.color = '#bf3767';
+            btn.style.transform = 'scale(0.98)';
+          }
+          playTwinkle();
+          } }            // moral rel
+        
+        ],
+        
+
+       
+      },
+
+      // 
+      // deontologyyy
+      // 
+      deon_1: {
+      
+      
+      question: `You accept because of you feel it is the right thing to do.
+
+
+    You are now called to go to the King of the land since you agreed to help. The people are desperate and the King hopes someone can take care of it with little interference from him.
+
+
+
+    When you arrive in the castle, you look at the lavish halls and treasures within. A feeling grows in your stomach, an aching sensation, one you cannot describe. The people of the land have far less than him.
+
+
+
+    He calls you to his throne room, and sits lazily on his decadent chair. 
+
+
+
+    He asks but a simple question, “Will you hunt down the dragon in the name of the king?” `,
+      options: [
+      { text: "Obey the king", next: "deon_2_faithful" },
+      { text: "Question the command", next: "deon_switch" },
+      { text: "Follow your own code", next: "deon_2_moral" }
+      ]
+
+      },
+      deon_switch: {
+      question: "You question the command of the king. How does he plan to help his people whilst sitting back in his fortefied walls? You know that deep down, this King does not care about his people, only merely the power they have given to him. The king grows angry at your skepticism. He roars with anger, like that of a tempered toddler, “You dare question me and my devotion to my people?! Here I was going to offer as many resources as you want! Unless you apologise you get nothing and I will continue to find another way to deal with this.” You have to respond.",
+      options: [
+        { text: "Accept his resources", next: "deon_2_faithful" },
+        { text: "Try a different tactic", next: "util_1" },
+        { text: "Withdraw entirely", next: "nihil_1" }
+      ]
+      },
+      deon_2_faithful: {
+      question: "You accept his request and the King offers aid. His aid takes the form of his best soldiers helping you on your mission. “These are my most loyal soldiers,” he declares. “They will aid you in this task. Do not fail me.” The soldiers salute, and you are quickly ushered from the gilded hall, the echo of your boots against marble fading behind you. Now you journey off into the land, rolling hills and scattered homes enter your path. A group of villagers appear before you suddenly, their clothes torn. They tell you how they have all lost their homes to the dragon, and have no where to go. They are hoping to recieve aid from the King. The corporal- one of the King’s soldiers, demands that they help the cause as well, and in return they will be rewarded handsomely. The villagers look unsure as to whether they want to help. They turn to you, hoping you could do something.",
+      options: [
+        { text: "Refuse to participate in forced conscription", next: "deon_3_protect" },
+        { text: "Try to keep immediate peace", next: "deon_3_enforce" },
+        { text: "Report the corporal to the king as this does not seem right", next: "deon_3_report" }
+      ]
+      },
+      deon_2_moral: {
+      question: "You decide to follow your own code and take care of this issue yourself without the King. The King is outraged that you have refused his offer and actively banishes you from the land. As you try to exit the lavish halls of the castle, you are stopped by a soilder. He glances around before lowering his voice. “The King wants results, but not all of us agree with his methods. I can offer you a pardon… freedom from his reach, if you agree to act as my agent. You’ll still serve the land, but through… other means.” It sounds like he would illegally escort and pay you to still deal with the Dragon. You seriously consider his offer. You still wish to help, but you also wish to do it without the crown. Do you:",
+      options: [
+        { text: "Refuse the pardon, keep your conscience", next: "deon_3_protect" },
+        { text: "Accept the offer", next: "deon_3_enforce" },
+        { text: "Remember this and expose it later", next: "deon_3_report" }
+      ]
+      },
+      deon_3_protect: {
+      question: "You refuse. Due to this, the soldiers that serve the King have all decided you are not worth the trouble and abandon working with you. You are now going alone to face the monster, however, you must be careful as the crown is not happy with your choices right now. Eventually, you reach the outskirts of the ravaged valley, where smoke rises in the distance. Rumours whisper that the dragon’s shadow has already fallen upon nearby villages. As you draw closer, a new challenge arises. At the forward encampment, a tense scene unfolds. You spot that soldiers have captured a creature- small, trembling, and clearly intelligent, said to be allied with the dragon. Even though you know you should avoid the crown, you go down to see the commotion. When you arrive, the creature stares at you with fearful eyes. A commander steps forward, barking the order: “Kill it. The beast serves our enemy. Its death might draw the dragon out. Do this and you will be spared yourself.” Your heart wavers. The creature hasn’t lifted a claw against anyone.",
+      options: [
+        { text: "Refuse to kill noncombatants on principle", next: "deon_4_stand" },
+        { text: "Carry out order to prevent larger bloodshed", next: "deon_4_comply" },
+        { text: "Delay and plead for mercy", next: "deon_4_mediate" }
+      ]
+      },
+      deon_3_enforce: {
+      question: "Now your journey has taken a new direction, keeping in line with the crown. The soldier is pleased with your decision, remarking that loyalty is rare in these times. For a while, you tell yourself you have done the right thing. You have fostered peace, or something close to it, out of duty. But as the days pass, doubt begins to whisper. You travel with a small contingent of soldiers and a few villagers pressed into service, people who are helping behind the King’s back, hoping your leadership would spare them from harsher demands. Yet they are tired, hungry, and restless. Your soldiers remain steadfast, but the villagers secretly conscripted to are growing restless. They grumble about the endless marching, and the lack of food. Since this situation is not planned, the food resources were scarce. One evening, a solider returns from scouting a nearby village. “They’ve been hoarding grain,” he reports. “The King’s men are starving while these people hide food for themselves. What are your orders?” When you arrive, you see a few sacks of grain stacked behind a farmhouse. Your troops eye it hungrily. The law says the crown’s soldiers are to be supplied first, but you can see the fear in the villagers’ eyes. You’ve followed orders to preserve peace, what do you do now?",
+      options: [
+        { text: "Agree to take it for now but promise to give back to the villagers", next: "deon_4_comply" },
+        { text: "Secretly aid victims while publicly obedient", next: "deon_4_mediate" },
+        { text: "Expose the law's injustice publicly", next: "deon_4_expose" }
+      ]
+      },
+      deon_3_report: {
+      question: "Your decision to act against wrongdoing has not gone unnoticed. You decide you cannot be apart of corruption, even if it is for this kingdom. You are but a visitor and do not need to concern yourself with it. You decide to travel back to the King to tell him what has happened, and that you want no part in it. Arriving back in the halls, the King looks upon you, confused on why you would enter his halls again so soon. The King responds “You speak of corruption as though it is separate from order. Perhaps you misunderstand how kingdoms survive.” Guards shift uneasily. You can feel the threat behind his measured words. You explain that you do not want to be apart of corruption and that you are leaving. The King demands that you take back what you have said, as he neither believes it, and hopes that word does not spread of soldiers acting separate from the King. Do you;",
+      options: [
+        { text: "Stand by the report and accept consequences", next: "deon_4_expose" },
+        { text: "Take it back, but go on to tell the townsfolk", next: "deon_4_mediate" },
+        { text: "You decide to stand by your willingness to help and leave to defeat dragon yourself", next: "deon_4_stand" }
+      ]
+      },
+      deon_4_stand: {
+      question: "You refuse to back down at the cost of your own principals. You stand your ground and choose to leave. The crown and kingdom has cursed you for your defiance. You do not care, and almost decide to leave this quest all together. That is until you remember the villagers, and the duty you feel you have to help them. You really do want to help them. You decide to go in alone.",
+      options: [
+        { text: "Let the people know the crown sucks", next: "ending_deon_martyr" },
+        { text: "Gather townspeople for your mission", next: "ending_deon_reform" },
+        { text: "Help those in need with the resources you have", next: "ending_deon_truth" }
+      ]
+      },
+      deon_4_comply: {
+      question: "You carry out the order the soldiers have given you, in the name of duty. When you and the soldiers begin to move away, something is heard from nearby…A dragon roar. It is time, the dragon has come, and It seems angry with your actions. You told yourself obedience would keep people safe. Now, the consequences of your decision are coming. How will you be remembered?",
+      options: [
+        { text: "Remain and quietly help victims", next: "ending_deon_compromise" },
+        { text: "Gather townspeople for your mission", next: "ending_deon_reform" },
+        { text: "Publicly confess and accept punishment", next: "ending_deon_martyr" }
+      ]
+      },
+      deon_4_mediate: {
+      question: "You decide that the people must come first, not the law, not the King. The people are to come first, even if you must do it in secret. Word spreads, not of rebellion, but of your mercy.  The townspeople show you great gratitude, they even bow their heads to you when you pass. Still, each act of compassion risks exposure. The King’s men grow suspicious, and you are watched now watches more closely. You walk a fragile line, protector and betrayer both, but those who have seen your mercy would defend you to the end. You are suddenly approached about your commitment to defeating the dragon.",
+      options: [
+        { text: "Gather townspeople for mission", next: "ending_deon_reform" },
+        { text: "Decide to help those in need and tackle dragon", next: "ending_deon_truth" },
+        { text: "Expose the truth at trial", next: "ending_deon_martyr" }
+      ]
+      },
+
+      deon_4_expose: {
+      question: "You refuse to stay silent any longer. The King's court, his soldiers, his decrees- all of it has drifted too far from what is right. You make your accusations public, declaring that the crown’s corruption and negligence have allowed suffering to spread across the land. The corruption and secrecy in the court is being found out. The response is swift and furious. Messengers carry word of your defiance to every outpost. Some call you a hero; others call you a traitor. The King orders your arrest, claiming your words endanger unity at a time when the dragon itself stirs once more. As the creature’s roars echo across the valleys, people begin to question when the beasts reign will come to an end and if the King really cares about anything beyond his own ego. Your actions have ignited something powerful- unrest, hope, and fear, all at once. The world is watching to see what you will do next.",
+      options: [
+      { text: "Stand trial to show moral courage", next: "ending_deon_martyr" },
+      { text: "Use publicity to gather towmspeople", next: "ending_deon_reform" },
+      { text: "Protect innocents in your own way", next: "ending_deon_truth" }
+      ]
+    },
+
+      // endings 
+    ending_deon_martyr: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/end1.png' alt='Martyr Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div>Better to Fall for What Is Right. Refresh to play again for another ending or click exit. <br><b>Deontology</b> <p>You have made your choice, and you have stood against the crown and all that it represents. Your words spread like wildfire, whispered across taverns and carried on the wind through ruined villages. Some call you a fool for defying power; others call you the first honest soul in an age of deceit. The King’s banners are lowered wherever your name is spoken, not out of loyalty, but out of fear.<p>  <p>The crown denounces you, stripping you of every title you could possibly ever get, every privilege. Yet even in your exile, the people do not forget. Farmers leave small tokens at the crossroads. Soldiers- those who once marched beneath the King’s command — quietly turn their gaze away when they see you pass. A quiet resistance begins to take shape, one built not on rage, but on faith that one person’s courage can still matter.  <p><p>You travel alone toward the distant mountains, where smoke rises like a warning from the earth. <p><p>When you reach the lair, the ground trembles. The air tastes of iron and ash. The beast emerges- vast, ancient, its scales glimmering like molten stone. But as it meets your gaze, it does not strike.  <p><p>For the first time, you see not a creature of malice, but of weariness. Its eyes, deep and golden, seem to recognize you, not as an enemy, but as something different. It rumbles, a sound like distant thunder, and the words that follow are not spoken aloud, but felt.  <p><p>“You are not of them,” it says. “You carry no crown’s scent.”  <p><p>You realize then what the King had hidden: the dragon’s wrath was not born of evil, but of betrayal. The crown had once struck a bargain with it, a pact broken for greed and dominance. The raids, the fires, the terror- all were retaliation, not conquest.  <p><p>And now, standing before this being of legend, you understand the true cost of blind obedience. You lower your weapon. The dragon lowers its head. <p><p>You return to the valley with the dawn at your back. Some say you tamed the dragon. Others claim you perished in the attempt. But those who saw you walk into the mist that morning swear they heard no roar, only silence, a peace that had not touched the land in years.  <p><p>Your defiance becomes legend. Songs are written not of your victory, but of your choice- to face both beast and crown without fear, and to stand by what was right, even when the world called you wrong.  <p> <p>In the end, your legacy is not of conquest, but of conscience. <p> <br><b>Deontology</b>" },
+    ending_deon_reform: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/qui.png' alt='Martyr Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div>Lawful Reformer. Refresh to play again for another ending. <br><b>Deontology</b> <p>You have decided that the only way to save the kingdom is not to tear it down, but to reform it from within. By using your public standing—whether born of defiance or of duty—you choose to harness the collective will of the people. Your refusal to be merely an obedient tool of the crown, or your actions of mercy and principled defiance, have granted you a vital platform. The people see in you a moral compass they can trust.</p><p>You use your visibility to organize the desperate townsfolk. You speak not of rebellion, but of duty, shared responsibility, and the laws of common decency that the crown has forgotten. You structure your efforts with military precision, training them not to fight the King's soldiers, but to defend their own homes and to prepare for the true threat: the Dragon.</<p>When you finally march on the Dragon's lair, you are not alone. You lead a civilian militia, a new kind of army built on principle rather than conscription. They fight with a fierce protectiveness, fueled by the faith you have instilled. The fight is brutal, but organized. You strike the decisive blow, not as the King’s agent, but as the servant of the people’s unspoken contract for safety.</p><p>The Dragon is defeated, and the immediate threat is over. But your work has just begun. The victory belongs to the people, and the King cannot ignore their newly awakened voice. You do not seize the throne, for that would be a violation of the existing order, but you demand a council, a written charter, and ironclad rules that govern the crown’s duties to its subjects.</p><p>You become the architect of a new system, ensuring that the laws, once mere instruments of the King's will, are now a framework for justice and the moral obligation of governance. You establish a lasting change, proving that the highest moral duty is not to obey a single ruler, but to ensure that the rules themselves serve what is right.</p>" },
+    ending_deon_truth: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/book.png' alt='Martyr Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div>Truth Above Thrones.  Refresh to play again for another ending. <br><b>Deontology</b> Whether by leaving the crown's service on principle, or by choosing to protect the innocent over upholding unjust laws, you have made a singular commitment: the immediate, undeniable duty to the people. You recognise that a true moral code transcends the corrupt, self-serving laws of the King.</p><p>You choose to ignore the politics, the arrests, the accusations, and the petty squabbles of the court. The Dragon is a threat to innocents, and your duty to protect them is paramount. You focus all your remaining resources and energy—and the unwavering loyalty of those who have seen your mercy—on the task at hand. You leave the political drama behind, letting your moral actions speak for themselves.</p><p>You do not seek glory or reform; you seek to fulfil your commitment to a higher truth. You use your knowledge of the crown's failings to your advantage, avoiding their patrols and operating in the shadows to aid the victims directly. You coordinate relief, warn villages, and prepare the land for the inevitable confrontation. You act as the true protector the King failed to be.</p><p>When you face the Dragon, you do it alone, or perhaps with a small, devoted band of volunteers. It is a stark, clean duty. You defeat the beast, not for the King's gold, but because it is the absolute, moral imperative of the moment.</p><p>The people are saved. When you return, the King attempts to claim the victory. But the truth is visible in the relieved faces of the townspeople, who cheer for your name. You do not stay for the praise or the politics. You have fulfilled your duty, and you move on, leaving behind a kingdom that now understands that true authority lies in moral action, not in the empty title of a throne. The King has the crown, but you have the conscience, and history will remember who truly saved the land.</p>" },
+    ending_deon_compromise: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/heart.png' alt='Martyr Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div>Secret Conscience. Refresh to play again for another ending.  <br><b>Deontology</b> <p>You have chosen a painful path, one where you acted against your purest principles in the name of a perceived greater duty, such as carrying out an unsavoury order or enforcing a peace that felt like forced obedience. You complied with the rule of law to prevent immediate anarchy or a larger, bloodier conflict. But the dragon's roar has shattered your fragile justification. You see now the true cost of moral compromise.</p><p>The soldiers who followed your order are ready to fight the Dragon, energized by your display of loyalty to the King's cause, however cruel. Yet, you cannot shake the image of the injustice you participated in—the fear in the villagers' eyes, the slain noncombatant, the stolen grain. You decide that your continued, visible adherence to the King's corrupt laws must stop, but that your duty to the people is too critical to abandon.</p><p>You use your position within the King's contingent to perform acts of quiet, unseen mercy. You remain publicly obedient to the crown to maintain access and influence, but secretly divert resources to the displaced. You relay information to vulnerable villages, warning them of both the Dragon's approach and the King's soldiers. You are a man of two worlds: the obedient agent of the crown in public, and the silent protector in the shadows.</p><p>When the Dragon battle begins, you fight with all your might. Your training and position are vital to the victory, and the beast is vanquished. The King hails you as a hero, showcasing your loyalty as an example to the rest of the kingdom. But your heart remains heavy. Your duty was fulfilled, but at the cost of your purest conscience.</p><p>You live with the compromise. The people are safe, the kingdom endures, and the crown is intact. You accept the titles and the public praise, knowing that your true, secret duty was to mitigate the damage of the system you were forced to serve. You dedicate the rest of your life to using your proximity to power to enact small, quiet, principled changes, proving that even a flawed path can sometimes be justified if it leads to the fulfillment of a greater duty: the preservation of life and order.</p>" },
+
+
+
+
+
+  // 
+    // ego
+    // 
+    ego_1: {
+      question: "You go around the village trying to find someone to empty to help slay the dragon. This would make your influence quite favourable in the village if you mange to pull it off. You come across a big, burly man who happens to be a traveler passing through the village by the name of ‘Vastor the big and strong’. Big and strong is what you need. You ask him if he can help with the dragon problem and that he will receive acclaim and rewards if he does. (You fail to mention you will also receive that). He smiles and agrees, he just wants to help. He asks if you will be there with him.",
+      options: [
+        { text: "You will watch from the sidelines and take care of the reward ", next: "ego_2_delegate" },
+        { text: "You will lead the charge", next: "ego_2_lead" },
+        { text: "Say you will (but you don’t actually)", next: "ego_2_abscond" }
+      ]
+    },
+    ego_2_delegate: {
+      question: "Vastor agrees to your terms, perhaps he is not the brightest. The two of you go off to defeat the dragon, following the directions of the townsfolk. You would ask to bring in others, but you don’t want to share the reward with anyone else. Once you get to the cave, you see the dragon sitting atop a pile of treasure. You make sure to stand back. You notice that the treasure the dragon has stolen all have symbols with a crown on it. Golden, but marked by a kingdom- this kingdom. The dragon notices you and roars, “Are you with the king!” It demands. You say no. Vastor than explains the plight of the townspeople. The dragon nods slowly, surprised none have come to him before. Then, he flies away with all the gold swallowed in his mouth. Now what?",
+      options: [
+        { text: "You tell Vastor you both defeated the dragons and plan to share spoils.", next: "ego_3_share" },
+        { text: "You tell Vastor he didn’t complete quest so he does not get spoils (you go get it for yourself.)", next: "ego_3_hide" },
+        { text: "You tell Vastor you will claim spoils in order to make the land better ", next: "ego_3_influence" }
+      ]
+    },
+    ego_2_lead: {
+      question: "You decide to lead the charge as well, or more accurately, tell Vastor what to do. When you arrive, following the directions from the townspeople (you did not want to involve more people as that would be more reward to share), you notice else the dragon sitting atop a pile of treasure. You tell Vastor to strike the dragon before it sees you two. Vastor does as he is told… and the dragon instantly thwarts him away. Vastor is thrown across the wall and knocked out cold. The dragon roars, “Puny humans- my fight is not with you, but who you call king!” Then he scoops up his treasure in his mouth and flies away. Suddenly another party shows up, a bit after the dragon has disappeared, also looking to slay the dragon for reward. Do you:",
+      options: [
+        { text: "Seize the situation- you guys are the victors ", next: "ego_3_seize" },
+        { text: "- Tell them that the dragon flew away, but the reward is still yours ", next: "ego_3_influence" },
+       
+      ]
+    },
+    ego_2_abscond: {
+      question: "You said you would help slay the dragon, but you conveinently forgot to accompany Vastor as he set off. You tell him you will catch up. You decide to explore the village and wait for him to return, wasting the day away. After some time, you see him returning, walking in the distance down a hill. You run to him. Once you get there, he tell you what has happened. That the dragon didn’t want to fight Vastor and heard the plight of the townsfolk. Due to this, it flew away with the treasure, only having qualms with the King of the land. You tell Vastor you guys can still partake in the reward. He is unsure. Do you:",
+      options: [
+        { text: "Take reward and invest in influence ", next: "ego_3_seize" },
+        { text: "Take reward and live quiet life", next: "ending_ego_survive" },
+        { text: "Bribe him to take reward with you ", next: "ending_ego_pragmatic" }
+      ]
+    },
+    ego_3_share: {
+      question: "You and Vastor decide to share the spoils with your expert persuasion. Once you get them (obviously you take more than Vastor), Vastor begins to feel guilty like you guys did not properly your keep. You are torn with what to do. Do you:",
+      options: [
+        { text: "Convince him you got rid of the dragon ", next: "ending_ego_pragmatic" },
+        { text: "Use more money to shut him up", next: "ending_ego_power" },
+        { text: "You agree, but then run away ", next: "ending_ego_survive" }
+      ]
+    },
+
+    ego_3_seize: {
+    question: "You claim you are victors and if need be, will become aggressive if the situation demands it. The party steps back as Vastor scares them greatly. You and Vastor now journey back in town to collect the reward from the townspeople. When you arrive however, Vastor is nervous as he does not believe you guys should take the spoils. Do you:",
+    options: [
+      { text: "Force him to shut up ", next: "ending_ego_power" },
+      { text: "Try to negotiate that you did get rid of the dragon ", next: "ending_ego_pragmatic" },
+      { text: "Agree, but then take it and flee. ", next: "ending_ego_survive" }
+    ]
+  },
+
+  ego_3_hide: {
+    question: "You tell Vastor that he didn’t complete the task so he gets no reward. There is a disappointed look upon his face. You almost feel guilty. Almost… You both journey back to towns and when you return the townspeople flock to you asking if you had done the deed. You tell Vastor he is free to go. When he goes, you tell the townspeople you have in fact done it. If they need proof all they need to do is go to the cave. Once they believe you, you get your reward. Unfortunately this travels back to Vastor as he heard about it. Do you:",
+    options: [
+      { text: "Force him to shut up", next: "ending_ego_power" },
+      { text: "Disguise yourself and leave before Vastor finds you", next: "ending_ego_survive" },
+      { text: "Try to negotiate ", next: "ending_ego_pragmatic" }
+    ]
+  },
+    ego_3_influence: {
+    question: " You decide to take the reward to buy influence over people for power. You believe with you in charge, great things can happen and this is just the start. You invest in trade and money for protection. People begin to see you as a leader. You make sure Vastor is well compensated for and promote him to your right hand man, at least he thinks he is, anyway. You are known throughout the lands as the dragon slayer. You know you are right for the land, and this is right for you. Although, worry plagues you as you wonder if people will find out your secret- that you really didn’t slay the dragon (or that Vastor will tell). Do you:",
+    options: [
+      { text: "Disguise yourself and take the money you have  ", next: "ending_ego_survive" },
+     
+      { text: "Double down and threaten ", next: "ending_ego_power" }
+    ]
+  },
+
+    // ego endings
+    ending_ego_survive: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/heart.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Pragmatic Survivor — you prioritized self-preservation and lived securely. <br><b>Egoism</b> Refresh to play again for another ending or click exit. <p>You run away in the middle of the night, putting as much distance as you can between yourself and the life you’ve abandoned… again. You choose a place so quiet and unremarkable that no one would think to look for you there, a place where the past can’t cling to you with its familiar weight. You start a small business with the little you managed to carry with you, building a modest living with your own hands.<p> <p>The days pass slowly but gently, tending to the soil, mending worn tools, and learning the rhythms of a land untouched by your former troubles. The quiet becomes its own kind of safety, a cocoon you wrap around yourself each dawn and unspool each dusk. For a time, it is enough. You earn just enough to survive, picking herbs and growing vegetables, selling what you can, and saving the rest. Life feels humble, honest, even if loneliness settles in like a second shadow. Then the rumors begin. At first they’re only fragments carried by traders: scorched fields, empty villages, livestock disappearing in the night. But as the weeks go on, the stories grow sharper, clearer. They speak of a dragon, enormous and merciless, sweeping across the lands and leaving ruin in its wake. You try to ignore the chill that crawls up your spine each time someone mentions it, but deep down you know the truth- you’ve run far, yet trouble has found a way to reach you once more.<p>" },
+    ending_ego_power: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/snake.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Power-Seeker — you secured dominance through force and strategy. Refresh to play again. <br><b>Egoism</b> When Vastor corners you with the truth, that you hadn’t truly slain the dragon and that he could expose you- you feel something dark coil inside your chest. You rise to your full height, letting every ounce of your simmering power spill out. Your voice deepens, your shadow stretches, and for a moment you become something monstrous, something vast and ancient enough to make the air tremble. Vastor, suddenly very small in your presence, stumbles backward and swears he will say nothing. Word spreads quickly after that encounter, twisted, exaggerated, and unstoppable. Soon your name is whispered with a mixture of awe and fear, a tale reshaped into legend by terrified tongues.<p>Eventually, those same whispers reach the king’s ears. He grows worried, convinced that any being capable of intimidating seasoned warriors and claiming victory over a dragon must be too dangerous to live. Orders are given in secret. Shadows begin to stalk you at night, silent figures slipping through forests and foothills. You notice the shift too late. One cold evening, as you close your shop and step into the stillness, the assassins strike with precision born from fear and duty. There is no grand battle, no final speech, only steel, a flash of pain, and the bitter realization that for all your running, all your posturing, you have become the very threat the kingdom believed you to be. And in the end, that belief is what kills you.<p>" },
+    ending_ego_pragmatic: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/heart.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Rule Through Pragmatism — you leveraged deals to remain on top. Refresh to play again <br><b>Egoism</b> <p>You try a different approach, no threats, no towering shadow, just quiet negotiation. You tell Vastor that the dragon is gone, that the land is safe, and that whatever doubts he has aren’t worth the trouble they’ll bring. To sweeten the deal, you slip him a heavy pouch of coin, more than you can comfortably spare, and ask him to let the matter rest. He hesitates, greed and suspicion warring in his eyes, but eventually he closes his fingers around the bribe and nods. It isn’t trust, but it’s enough. With that tenuous peace secured, at least for now, you step back from the life you’ve been scraping together and make plans to fade into the background. You buy a small house on the outskirts of the village, a place with a creaking gate, overgrown garden, and a roof that sighs when the wind hits just right. It becomes your new base, a home you return to between wanderings. The road still calls to you, and you answer it, leaving for weeks at a time to explore markets, forgotten paths, and distant towns where no one knows your face. Yet every time you leave, a thought gnaws at you: Vastor is still out there, holding the truth like a blade he hasn’t decided to use. You can only hope he keeps his mouth shut while you’re gone… because if he doesn’t, the fragile peace you’ve built could crumble faster than you can run.<p>"}
+   
+
+  
+    ,
+
+
+    // 
+    // virtue ethics
+    // 
+    
+
+  virtue_1: {
+    question: "There is a dragon attack now! You gather allies, or rather, the villagers who happen to be nearby when the dragon’s shadow sweeps over the tree line. They barely know you. Some mutter that the newcomer should stay out of it; others look to you simply because you’re the only one stepping forward. A few hide behind fences or overturned carts, trembling. Others grip rusty swords or pitchforks, more out of panic than bravery. You hear whispers, debating about whether or not they can trust you. Smoke curls through the distant trees. The dragon’s roar shakes dust from the rooftops. It is coming. These strangers may not trust you yet, but they are watching, waiting, desperate for someone to act. What virtue will define you in this moment?",
+    options: [
+      { text: "Lead bravely from the front (Courage)", next: "virtue_2c" },
+      { text: "Calmly advise the frightened to stay safe (Prudence)", next: "virtue_2b" },
+      { text: "Inspire through example, encouraging all to stand together (Compassion)", next: "virtue_2" }
+    ]
+  },
+
+  virtue_2: {
+    question: "Your allies—these strangers who only met you days ago—begin responding to your guidance. A few steady their weapons. Others draw closer together, breathing hard as they watch the sky. The dragon circles overhead, each beat of its wings sending gusts of wind across the fields, rattling shutters and bending grass flat. Its shadow glides over you all like a warning. A cluster of villagers raises their bows, hands shaking so badly the arrows clatter against the bowstrings. Someone whispers a prayer. Another mutters that this is madness. Every instinct screams to move, to choose, to define yourself right now. You can feel the villagers watching you, trusting, doubting, hoping. With a thunderous crack of displaced air, the dragon descends, talons gouging into the hillside just beyond the village. It lands on a hill. What do you do?",
+    options: [
+      { text: "Step forward to face danger and protect others (Courage)", next: "virtue_3" },
+      { text: "Refuse reckless risk, preserving lives (Prudence)", next: "virtue_3b" },
+      { text: "Attempt dialogue or compromise with the dragon before conflict (Compassion)", next: "virtue_3c" }
+    ]
+  },
+
+  virtue_2b: {
+    question: "You urge several villagers to fall back or retreat into safer parts of the village. Some resist, but most obey, trusting the calm certainty in your voice far more than the chaos unfolding above. You watch them scatter to doorways, alleys, and fortified corners, their hurried footsteps fading beneath the dragon’s distant wingbeats. But moments later, a few of those you sent away reappear at the edge of the clearing. They step closer, forming a small semicircle around you, not defiant, but hopeful. These villagers barely know you, yet in this terror-filled moment, they’re the ones who choose to follow you. They look to you for direction, for meaning, for a virtue to anchor themselves to. Behind them, the dragon lets out a low rolling growl that shakes dust from rooftops. Your next decision will define what you inspire in these returning allies.",
+    options: [
+      { text: "Welcome them back warmly, valuing their courage (Compassion)", next: "virtue_3c" },
+      { text: "Test their resolve, sending them on a small mission before trusting them fully (Courage)", next: "virtue_3" }
+    ]
+  },
+
+  virtue_2c: {
+    question: "You stride to the front of the gathered villagers, the crunch of gravel under your boots sounding far louder than it should. The dragon settles on the hill before you, sunlight sliding over its scales like liquid metal. Smoke threads lazily from its nostrils as it exhales, its breath carrying the faint scent of ash and old stone. Its molten-gold eyes track your every movement, unblinking, assessing. Instead of attacking, it lowers its head slightly, a gesture that could be curiosity, or warning. For a moment, the world holds its breath. The dragon seems willing to speak, if you dare to address it.",
+    options: [
+      { text: "Demand safe terms before any action (Prudence)", next: "virtue_4" },
+      { text: "Attack immediately to assert dominance (Courage / Reckless)", next: "virtue_4b" },
+      { text: "Offer peace and attempt compromise (Compassion)", next: "virtue_4c" }
+    ]
+  },
+
+  virtue_3: {
+    question: "You sprint toward the dragon, weapon raised, the ground trembling beneath each of its breaths. Heat washes over you as flames curl between its teeth, illuminating the dust around your feet. Behind you, villagers gasp, some in fear, others in awe, your bravery pulling them a step closer, or pushing them to retreat entirely. The dragon shifts, massive claws digging into the earth as it lowers its head to observe you more closely. Its roar rolls across the clearing, but something in the sound feels measured, almost… evaluative. By standing alone in its shadow, you’ve earned its attention, but also placed yourself in undeniable danger.",
+    options: [
+      { text: "Live as a hero who protects others (Courage)", next: "virtue_5" },
+      { text: "Win through force or intimidation (Ruthless Courage)", next: "virtue_5b" },
+      { text: "Suffer defeat but teach others through your example (Humility / Courage)", next: "virtue_6" }
+    ]
+  },
+
+  virtue_3b: {
+    question: "You order villagers to take cover, minimizing risk. The dragon lands at the far edge of the clearing, smoke curling around its massive wings. Its gaze rests on you, and you maintain a calm, steady presence. Villagers see the wisdom in restraint.",
+    options: [
+      { text: "Teach others the value of foresight and caution (Wisdom)", next: "ending_virt_wisdom" },
+      { text: "Accept criticism but know lives were saved (Compassion)", next: "ending_virt_compassion" }
+    ]
+  },
+
+  virtue_3c: {
+    question: "You move toward the dragon with deliberate calm, palms open to show you carry no threat. Its pupils narrow as it tracks each of your steps, warm breath washing over you in heavy, rhythmic waves. When it finally lowers its massive head, the earth vibrates beneath your boots. 'Why do you approach?' it growls, smoke trailing from its nostrils. 'Are you another pawn of the King?' You shake your head, voice steady despite the heat. You tell it the villagers know nothing of the King’s deeds, that they are frightened, not hostile, and that you’ve come seeking understanding before anyone bleeds. The dragon’s gaze flickers, its anger tempered for the briefest moment as your sincerity reaches it.",
+    options: [
+      { text: "Form lasting support networks with villagers (Compassion / Prudence)", next: "virtue_7" },
+      { text: "Act decisively to protect villagers", next: "ending_virt_courage" }
+    ]
+  },
+
+  virtue_4: {
+    question: "You stand in front of the dragon, the tension stretched so thin it feels as though one wrong breath could snap it. Yet the dragon does not strike. Instead, it coils its tail around itself and lowers its wings, settling atop the hill like a creature exhausted by centuries, not moments of conflict. When it speaks, its voice rumbles through your bones. 'My kin were slaughtered by the King’s hunters. My hoard, my history, was taken piece by piece. I burned soldiers, not farmers. I destroyed outposts, not homes. Yet your people fear me as though I ever sought their blood.' You tell the dragon you will talk to the villages if it stops terrorising them. It accepts. You explain to the villagers how the King’s banners were found in every ruin, how the dragon’s rage has direction, purpose, and wounds older than any of them. Slowly, the villagers’ fear shifts into something more complex, pity for the creature, anger toward the crown, and cautious hope that peace might still be possible. Standing between them, you feel the weight of the moment: your virtue has brought them to dialogue instead of destruction.",
+    options: [
+      { text: "Establish councils to maintain peace (Balance / Justice)", next: "ending_virt_balance" },
+      { text: "Mentor allies in future leadership and morality (Wisdom / Compassion)", next: "ending_virt_teach" }
+    ]
+  },
+
+  virtue_4b: {
+    question: "You strike first, rushing the dragon before it has even finished drawing breath. Your weapon glances off its scales with a sharp crack, doing little more than annoy it. The dragon’s pupils narrow. A low, offended growl rolls through its chest before it unleashes a blast of heat that sends villagers scrambling. Flames sweep the clearing, igniting fences and carts. The dragon’s wings hammer the air, knocking you off your feet. Every attempt you make to stand your ground is met with overwhelming force, a swipe of its talons sends you skidding across the dirt, a lash of its tail collapses a nearby home. Villagers scream and scatter, some trapped behind fire and debris. You fight with everything you have, but the dragon barely seems winded. It pins you with a single claw, leaning in close, smoke curling around your face. 'Reckless,' it rumbles. 'And ignorant.' With a shove, it throws you aside, not to kill you, but to end the pointless attack. By the time you rise, the clearing is devastated, many hurt, the village shaken, morale shattered. Your courage was real, your judgment was not. And everyone pays for it.",
+    options: [
+      { text: "Rebuild and teach from experience (Wisdom / Compassion)", next: "ending_virt_teach" },
+      { text: "Claim glory from the victory (Courage / Ambition)", next: "ending_virt_courage" },
+      { text: "Retire in shame, realizing recklessness harmed innocents (Humility)", next: "ending_virt_failure" }
+    ]
+  },
+
+  virtue_4c: {
+    question: "You step forward carefully, lowering your weapon and speaking with calm authority. 'Take what you seek, and harm no one here,' you say. The dragon tilts its head, smoke drifting lazily from its nostrils. It studies you for a long moment, then slowly lowers itself to the ground, its massive body pressing down like a living hill. With a deep, rumbling voice, it replies, 'I seek only what was stolen, and justice for my kin.' You guide it toward a secluded part of the forest where its treasures were taken. Villagers watch from a safe distance, tense but silent, as the dragon retrieves its hoard without incident. The dragon pauses to regard you once more. 'You have shown wisdom and respect. This is rare.' With a flap of its wings, it departs, carrying its treasures but leaving the village unharmed. Relief washes over the villagers, they cheer softly, some crying, grateful their lives and homes are intact. You realize that sometimes courage means restraint, and that compassion and prudence together can save more than brute force ever could.",
+    options: [
+      { text: "Prove strength while maintaining peace (Balance)", next: "ending_virt_balance" },
+      { text: "Lead others in compassionate action (Compassion)", next: "ending_virt_compassion" },
+      { text: "Step back and advise future leaders (Wisdom / Prudence)", next: "ending_virt_teach" }
+    ]
+  },
+
+  virtue_5: {
+    question: "Your courage shines through as you step forward, weapon raised, not recklessly, but as a symbol of protection. The dragon eyes you warily, nostrils flaring smoke, its massive wings creating gusts that ripple across the clearing. You hold your ground, unwavering, and your steadfastness seems to register with the beast. You yell out that you will seek justice for your village. After tense moments, the dragon slowly retracts, wings folding, tilting its head in what feels almost like acknowledgment. It does not attack, instead, it retreats to the hilltop, flames licking harmlessly at the air as a warning rather than a threat. Villagers exhale, trembling, some wiping tears from soot-streaked faces, while others cheer at the courage that has saved their homes. The clearing feels lighter now, the danger receding. Allies gather around you, eyes wide with admiration and gratitude. In your heart, you feel the weight of responsibility, courage came with cost and risk, but it also brought hope. The village, once paralyzed by fear, now begins to stir with newfound confidence, ready to rebuild and learn from the example you set.",
+    options: [
+      { text: "Inspire others to act with courage (Courage)", next: "ending_virt_courage" },
+      { text: "Establish a stronger community for the future (Balance)", next: "ending_virt_balance" }
+    ]
+  },
+
+  virtue_5b: {
+    question: "You act with force, letting no room for hesitation. Weapons are raised, your voice commands attention, and the dragon snarls, smoke curling from its nostrils. It lashes out, but you block, dodge, and maneuver just enough to protect the villagers. Eventually, it retreats, not out of respect, but out of irritation and tactical calculation. Its eyes glint with anger, promising this is not over. The villagers remain alive, but fear lingers. Some look to you with awe, others with unease, unsettled by the sheer intensity of the confrontation. The clearing is scorched and battered; trees lie broken, and the air smells of fire and ash. You feel the weight of your actions, the dragon’s fury is undiminished, and the cost of survival feels heavy on your conscience.",
+    options: [
+      { text: "Seek redemption for harsh methods (Compassion)", next: "ending_virt_compassion" },
+      { text: "Retire in shame (Humility)", next: "ending_virt_failure" }
+    ]
+  },
+
+  virtue_6: {
+    question: "Despite your courage, the dragon proves too powerful. Its massive claws tear through the ground near you, and a sweeping tail knocks your footing aside. Smoke and heat fill the clearing as you struggle to keep the villagers behind cover. You are forced to yield, retreating with bruises and singed clothes, while the dragon hovers above, eyes gleaming with controlled fury. The villagers are shaken, but unharmed, they watched your effort and saw your bravery, even in failure. You feel the sting of defeat, yet recognize the lessons it offers: restraint, respect for strength, and the importance of wisdom alongside courage. Your example still teaches, showing that moral integrity does not require victory, and that leadership sometimes means enduring loss to protect others.",
+    options: [
+      { text: "Teach others the lessons of courage tempered by humility", next: "ending_virt_teach" },
+      { text: "Sometimes, you just fail", next: "ending_virt_failure" }
+    ]
+  },
+
+  virtue_7: {
+    question: "You hear villagers need your help. You promise the dragon you will be back for its answer. The dragon hesitates on the hill, wings folding slightly as it watches you move among the villagers. You notice families huddled behind fences and some clutching tools, unsure how to help one another. Taking initiative, you guide them, reassuring, directing, and lending hands where needed. Seeing your care and the villagers’ growing confidence, the dragon shifts its gaze. It snorts softly, smoke curling from its nostrils, and slowly rises into the sky. It doesn’t want to harm those who are clearly no threat. You and the villagers watch it depart, relief washing over everyone.",
+    options: [
+      { text: "Mentor villagers and allies in cooperation and diplomacy", next: "ending_virt_teach" },
+      { text: "Focus on building a balanced community and lasting peace", next: "ending_virt_balance" }
+    ]
+  },
+
+
+    //  endings
+    ending_virt_courage: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/sword.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Courage. <br><b>Virtue Ethics</b> Refresh to play again for another ending or click exit.<p>The villagers watch as your bravery steadies your hands and heart, standing firm while the dragon regards you warily. Though no blood is shed, your courage signals that fear will not control this village. People begin to mirror your actions, holding their ground, helping one another, and lending strength where it is needed. Even in retreat, the dragon seems to recognize your resolve, allowing the village to remain intact.<p><p>As days pass, stories of your courage spread beyond the village borders. Children practice courage in small ways, adults make bolder decisions, and the community grows stronger together. The lesson is clear: heroism is not always measured by defeating monsters, but by standing for others and inspiring action when it matters most. Your presence has ignited hope, bravery, and unity where fear once reigned.<p>" },
+    ending_virt_wisdom: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/book.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Wisdom <br><b>Virtue Ethics</b> Refresh to play again for another ending or click exit. <p>You gather the villagers after the dragon retreats to the far edge of the clearing, still watching warily. You show them how to reinforce fences, move livestock to safe areas, and observe signs of danger without panicking. Each step you guide them through is small but deliberate; every choice reinforces the value of foresight. The villagers begin to nod, understanding not just the instructions, but the reasoning behind them, gaining confidence in their own judgment.<p><p>Later, as the sun sets and the dragon disappears beyond the hills, you feel a quiet satisfaction. Though no heroic battle occurred, the village is stronger, safer, and wiser. You have demonstrated that courage is not only measured by how bravely one fights, but by how wisely one prepares. The villagers look at you not as a stranger, but as a teacher, someone who led them through fear without reckless action.<p>" },
+    ending_virt_compassion: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/heart.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Compassion. <br><b>Virtue Ethics</b> Refresh to play again for another ending or click exit.<p>The dragon lingers for a moment, nostrils flaring, then slowly lifts off, its massive shadow leaving the village bathed in warm sunlight. Villagers emerge cautiously from behind fences, checking on one another and sharing relief-filled smiles. You move among them, helping the injured, calming the frightened, and offering reassurance. Your presence becomes a symbol of care under pressure, and the village senses that their lives mattered more than pride or glory.<p><p>By evening, the village feels alive again, not from victory or conquest, but through the bonds strengthened in crisis. The dragon may have been a terror, but the true triumph was measured in lives preserved, fear tempered, and hearts soothed. You understand that sometimes compassion, paired with prudent caution, saves more than sword or fire ever could.<p>" },
+    ending_virt_balance: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/scales.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Balance. <br><b>Virtue Ethics</b> Refresh to play again for another ending or click exit.<p>The dragon’s departure leaves the village shaken but unharmed. You walk among the villagers, listening to their concerns, mediating disputes, and offering guidance without asserting dominance. Together, you create a new system: a small council of trusted villagers oversees watch duties, safety plans, and resource distribution. Every decision balances caution with courage, reflection with action. Your presence becomes the center of a growing culture of responsibility and fairness.<p><p>Months later, the village is more resilient than ever. Children practice safety drills with enthusiasm, adults communicate openly, and cooperation flows naturally. Tales of the dragon and your measured leadership spread, not as legends of a hero slaying a beast, but as the story of a community guided by wisdom, balance, and moral virtue. Your courage, tempered by prudence and compassion, created a legacy of stability and peace.<p>" },
+    ending_virt_teach: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/book.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Teach. <br><b>Virtue Ethics</b> Refresh to play again for another ending or click exit.<p>After the dragon finally leaves, trusting your clear intentions and seeing no immediate threat, you turn your attention fully to the villagers. Together, you discuss what happened, what worked, and what could be done differently if danger returns. Children peek from behind carts as adults share strategies, learning to cooperate instead of panic. You guide the conversations, offering gentle correction, praise, and encouragement, showing that mistakes are opportunities to grow.<p><p>Weeks later, the village is transformed. People act with confidence, not fear. They organize watch rotations, plan safe routes, and mentor younger villagers in practical skills. Your actions with the dragon are remembered, not for fear or heroics, but for the example you set — that calm, thoughtful action, paired with moral courage, inspires others to grow into leaders themselves.<p>" },
+    ending_virt_failure: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/det.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Fail. <br><b>Virtue Ethics</b> Refresh to play again for another ending or click exit.<p>The dragon’s overwhelming power forces you back. Villagers are safe, but the clearing is scorched, fences destroyed, and morale shattered. You sit among the debris, bruised and singed, painfully aware of how recklessness endangered the very people you sought to protect. Your courage alone was not enough; without foresight or measured action, the cost was nearly catastrophic.<p><p>Yet in failure, lessons emerge. You speak to the villagers, acknowledging the mistakes, and together you begin clearing debris, patching walls, and fortifying defenses for the future. They see that even leaders can fail, and that humility in the face of mistakes fosters resilience and wisdom. Though your pride is wounded, the village begins to recover, shaped by your hard-won lessons, and you understand that virtue is often proven not in victory, but in how one rises after falling.<p" },
+
+
+
+
+
+
+
+
+
+  // 
+    // nihilsm 
+    // 
+    nihil_1: {
+      question: "You decide it seems hopeless, what could you do against the full might of a dragon? The request is foolish. When you decline, the villagers look forlorn. They decide to up the reward if that would persuade you. Does it?",
+      options: [
+        { text: "Accept but know you are doomed", next: "nihil_2_take" },
+        { text: "You decide to think about it", next: "nihil_2_search" },
+        { text: "Don’t accept", next: "nihil_2_aloof" }
+      ]
+    },
+    nihil_2_take: {
+      question: "You take the larger reward but know your death is imminent. Good thing you do not care. You also know that there is no hope in saving these people, but if you’re are going to die, it may as well be surrounded by riches. You managed to negotiate half the reward now, and half (if) when you get back. You blow off a lot partying, cruising and boozing. The people are angry you have taken their gifts for granted. Do you:",
+      options: [
+        { text: "Apologise and start mission", next: "nihil_3_start" },
+        { text: "Keep spending and forget duties", next: "nihil_end_abandon" },
+        { text: "Escape to distant land", next: "nihil_end_detached" }
+      ]
+    },
+    nihil_2_search: {
+      question: "You are unsure if you want to give your life away just yet. You look around he village and decide if there is anything to fight for. You see a mother trying to shush her crying baby. It is kind. Warm. Then you turn around the corner and see a man getting beaten up. His money taken from him. You are torn.",
+      options: [
+        { text: "Don’t make a decision still", next: "nihil_end_inaction" },
+
+        { text: "It’s too hard to choose… just leave", next: "nihil_end_abandon" }
+      ]
+    },
+    nihil_2_aloof: {
+      question: "You do not accept. It’s not your place, nor do you want to do this. The villagers are sad but they understand. Perhaps you decided to move to a bad village. Perhaps you should take off somewhere else? Though, there is no guarantee it will be better elsewhere. ",
+      options: [
+        { text: "Being quiet life elsewhere", next: "nihil_end_detached" },
+        { text: "Just leave", next: "nihil_end_abandon" }
+      ]
+    },
+
+    nihil_3_start: {
+      question: "You start the mission. You get to the cave where the dragon is said to be. You see the dragon sitting atop a pile of treasure. You approach it. It notices you and roars, “Are you with the king!” It demands. You say no. The dragon nods slowly, surprised none have come to him before. Then, he flies away with all the gold swallowed in his mouth. It is possible he comes back, what do you do?",
+      options: [
+       
+        { text: "The dragon was massive, just leave", next: "nihil_end_detached" },
+        { text: "Leave the town", next: "nihil_end_abandon" }
+      ]
+    },
+
+    //  endings
+    nihil_end_detached: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/det.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You abandoned all paths. Reload to play again. <br><b>Nihilsm</b><p>Your detachment has become a shield, one you’ve worn for so long it feels like part of your skin. When trouble whispers through the village, when fear flickers in the eyes of those around you, you feel nothing but a distant, hollow resignation. You’ve learned not to care too deeply, not to tie yourself to people or places that can be torn away. You don’t panic. You don’t warn anyone. You don’t reach out. Caring would make you vulnerable, and you have spent too many years teaching yourself not to be.<p><p>The truth is simple, and you’ve known it from the start: the dragon will come, and there’s nothing you can do to stop it. Its shadow stretches across your thoughts long before it reaches the village itself. You don’t wait for the first roar or the first plume of smoke. You leave, slipping away before dawn, footsteps steady and heart untouched. Behind you, a fate you refuse to claim begins to unfold, but you do not look back. You tell yourself it isn’t your responsibility, that you owe these people nothing. And so you go- cold, quiet, and certain that distance is the only thing you can still control.<p>" },
+    nihil_end_inaction: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/heart.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> Your inaction has consequences. Refresh to play again. <br><b>Nihilsm</b> <p>Your inaction becomes the thread that unravels everything. You tell yourself it isn’t your place to interfere, that the village will manage on its own, that the dragon’s return is inevitable no matter what you do. The dragon tears through the village in a storm of fire and wings, obliterating homes and scattering lives like leaves in a gale. You watch from the outskirts, frozen by the very detachment you once relied on, as everything you might have saved is reduced to ash.<p><p>The weight of it settles slowly- too late to change anything, too heavy to escape. When you finally try to flee, chaos is already everywhere. Villagers run in every direction, some blaming fate, others blaming you. In the confusion, you stumble, cornered by fire on one side and terrified survivors on the other. It doesn’t take long before you're caught- dragged down by those desperate for someone to answer for the destruction. Their grief outweighs reason, their fear demands a culprit, and you stand defenseless before it. Whether it’s the flames, the dragon, or the hands of those you abandoned, the end comes swiftly. In your final moments, you understand with brutal clarity: it wasn’t the dragon that doomed you, but the choice you made to do nothing.<p>" },
+    nihil_end_abandon: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/det.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You abandoned all paths. Refresh to play again. <br><b>Nihilsm</b> <p>You make the decision in silence, standing at the edge of the village as dusk settles over the rooftops. There’s nothing dramatic about your departure. You pack lightly, taking only what you can carry, and slip into the treeline before anyone notices you’re gone. For a moment, you allow yourself to believe this is the right choice. <p><p>But as the distance grows, so does the sense of dread curling at the back of your mind. Before dawn breaks, you hear the first distant roar- deep, furious, unmistakable. Smoke stains the sky behind you, rising in thick black plumes. The dragon has come back. It tears through the village with ruthless fury, burning homes, scattering livestock, and sending people running for their lives. You can almost feel the heat of its fire even from miles away. The place you had called home, however briefly, is being pillaged in your absence, and the guilt settles heavily on your shoulders. Whether you left to protect yourself or to protect them no longer matters; destruction has followed your footsteps.<p> " },
+
+
+
+
+
+
+    // 
+    // utilitarianism
+    // 
+    util_1: {
+      question: "You are told the dragon has not taken lives yet- besides some kings men, but it could any day. You are unsure about helping, but you agree, accepting that this is for the greater good. You begin your journey to the dragons lair, thanks to the directions of the townsfolk. Along your journey, across a hill, an old woman calls out for help. There seems to be no one else coming to help. You have a decision to make. Help the woman, and delay the dragon, or go straight to the dragon, potentially saving more lives.",
+      options: [
+        { text: "You decide to sacrifice her needs", next: "util_2" },
+        { text: "Decide to survey the situation ", next: "util_data" },
+        { text: "You are stuck by choice", next: "util_moral_refusal" }
+      ]
+    },
+    util_data: {
+      question: "You go over to scout the situation before you make a choice. When you arrive you see that somehow the old woman has become stuck under a wooden cart. She locks eyes with you and asks you to help her. It seems like you have a choice to make. Do you:",
+      options: [
+        { text: "Apologise but cannot stop", next: "util_2" },
+        { text: "You leave it up to chance", next: "util_lottery" },
+        { text: "Potentially see if anyone else can help ", next: "util_calc" }
+      ]
+    },
+    util_2: {
+      question: " You unfortunately cannot stop to help her. This quest is just too important. You realise how treacherous going alone would be, but an old lady would be of no help to you. You walk closer to the cave where the dragon is. Thankfully, a squad of villagers have come to aid you. Leading them into the cave you come up with a strategy. Do you:",
+      options: [
+        { text: "Trick the dragon", next: "util_trick" },
+        { text: "Overpower the dragon ", next: "util_force" },
+        { text: "Negotiate with the dragon ", next: "util_compromise" }
+      ]
+    },
+    util_calc: {
+      question: "You quickly weigh out if getting someone to help her could be beneficial. In the end, you decide to call out and see if there is someone nearby. Your voice carries more than hers. You yell out for someone. Anyone. Luckily, someone actually does come. A farmer is seen across the hill, you tell the old man you cannot stay but help is on its way. You leave. When you get there, some villagers are already there, hoping to take care of it themselves. They see you and ask if you can lead. Do you:",
+      options: [
+        { text: "Tell them to negotiate with dragon ", next: "util_outcome1" },
+        { text: "You mention the old lady ", next: "util_compromise" },
+        { text: "Majority decides what to do ", next: "util_outcome2" }
+      ]
+    },
+    util_trick: {
+      question: "You decide to trick the dragon. Your brilliant plan is to distract the dragon as a ‘friend’, whilst the townspeople’s go in and stab it whilst it’s distracted with you. As you make your way into the cave, you notice all the treasure in the cave has a crown insignia- the kings jewels. You approach the sleeping dragon with great caution, it wakes up by your presence. “Who are you!” It roars. You tell it that you are a friend. The dragon doesn’t believe you for obvious reasons. “I don’t recall your name.” Whilst you keep taking, the townspeople close in around the dragon. You tell the dragon stories of their time together stealing from the king, a long, long time ago. The dragon is very distracted. The villagers continue to close in around it when suddenly one trips and falls, as it is dark in the cave. The dragon catches on and roars with anger.",
+      options: [
+        { text: "Continue tricking", next: "ending_util_trickery" },
+        { text: "Try to reason ", next: "ending_util_compromise" },
+        { text: "Fight", next: "ending_util_hardroad" }
+      ]
+    },
+    util_force: {
+      question: "You try to overpower the dragon with force. You all run in, swords at the ready when the dragon instantly wakes up from its afternoon nap. You all underestimated its size as you stop before it. The townspeople tremble, you yourself are feeling scared. In order to save lives you must do this, however. The dragon almost laughs at your faces. Do you:",
+      options: [
+        { text: "Continue with fight ", next: "ending_util_hardroad" },
+        { text: "Notice King’s treasure and question it ", next: "ending_util_overthrow" },
+        { text: "Try to reason with dragon", next: "util_compromise" }
+      ]
+    },
+    util_compromise: {
+      question: "You try to negotiate with the dragon in hopes that it will understand your plight. The townspeople are unlikely to fight anyway. The dragon listens to you, “Hmm. I see. I did not realise. I thought all of this land is the King’s and everyone in it works for him. I only want to harm him. He slayed my family and now I do the same.” You tell him the people have suffered under the King as well. What do you do now?",
+      options: [
+        { text: "Be thankful it worked out ", next: "ending_util_compromise" },
+        { text: "Perhaps in order to save lives the King must be gone ", next: "ending_util_overthrow" },
+        { text: "Decide to fight anyway", next: "ending_util_hardroad" }
+      ]
+    },
+    util_outcome1: {
+      question: "You mention that you had to help an old lady and question if anyone knows her. Two of the townspeople do and mention how their grandmother went missing last night. They are thankful that you saved her and go away to help. Now you are two less people and you need everyone. You need to rethink your strategy. Do you:",
+      options: [
+        { text: "Try reason with dragon", next: "util_compromise" },
+        { text: "You are stuck ", next: "util_moral_refusal" },
+        { text: "Go in anyway and fight", next: "ending_util_hardroad" }
+      ]
+    },
+    util_outcome2: {
+      question: "You guys vote on how to deal with the fearsome foe. In the end, you settle on a sneak attack. Someone distracts the dragon whilst others go in for the strike. Unfortunately, you were the one chosen to distract. Accepting your fate, you go in the cave. You see the mighty dragon sleeping on some treasure. The treasure seems to be from the king. You realise you could easily attack it now, whilst it sleeps. What do you do?",
+      options: [
+        { text: "Wait for everyone still", next: "ending_util_compromise" },
+        { text: "Trick the dragon", next: "ending_util_trickery" },
+        { text: "Go for the kill", next: "ending_util_hardroad" }
+      ]
+    },
+
+    util_moral_refusal: {
+    question: " You are stuck by choice and need to make a decision quickly. The townspeople move on from you, needing a quicker solution. The next day many suffer and all their gold is taken from them. Reports of the dragon cursing the King and all his followers were heard during the attack. You rethink your choices and decide on a decision. You:",
+    options: [
+      { text: "Decide to go in alone", next: "util_alone" },
+      { text: "Decide to go with group", next: "util_call" },
+  
+    ]
+  },
+  util_alone: {
+    question: "You decide to go in alone. When you arrive, the dragon is sleeping atop a pile of treasure. You notice the treasure has the kings insignia on it. You approach the dragon carefully. It wakes up and roars, “Who are you!” It demands. You tell it you are a messenger from the king. The dragon is furious. “I don’t recall your name.” You tell the dragon that you have come to negotiate peace between the two of you. The dragon listens to you, “Hmm. I see. I did not realise. I thought all of this land is the King’s and everyone in it works for him. I only want to harm him. He slayed my family and now I do the same.” You tell him the people have suffered under the King as well. What do you do now?",
+    options: [
+      { text: "Fight him", next: "ending_util_hardroad" },
+      { text: "Negotiate ", next: "ending_util_compromise" }
+    ]
+  },
+  util_call: {
+    question: "You go with a group and try to tackle the dragon once and for all. You come up with a brilliant plan to take care of it. Do you:",
+    options: [
+      { text: "Negotiate ", next: "ending_util_compromise" },
+      { text: "Trick", next: "ending_util_trickery" },
+      { text: "Overpower", next: "ending_util_hardroad" }
+    ] 
+  },
+
+
+  util_lottery: {
+    question: "You randomly decide if you should go and help. You let it up to chance and sing a poult deciding song in your head. Enemy… meeney… Eventually it lands on helping. Going up to her, she gives her thanks, and you lowers yourself so you can push the cart of her safely. When it is off, she tells you she is actually a witch looking for people who perform good deeds. She grants you help if you need it. You mention the dragon problem. She offers solutions:",
+    options: [
+      { text: "Teleport to dragon and negotiate", next: "ending_util_compromise" },
+
+      { text: "Ask for power", next: "ending_util_hardroad" }
+    ]
+
+   },
+
+    // endings
+    ending_util_trickery: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/snake.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You trick the dragon, but it rewards you. Refresh to play again.<br><b>Utilitarianism</b><p> <p>The dragon’s roar shakes the cavern walls, its massive head snapping toward the sound of the falling villager. Fury flashes in its molten eyes, smoke curling from its nostrils as it gathers itself to strike. But before it does, your frantic words cut through the rising heat. You shout that the villagers aren’t soldiers, nor allies of the crown- that they came in fear, not loyalty. The dragon hesitates, confusion flickering beneath its rage. You take the gamble and tell it a lie: about how the King stole treasure from your family, and how you seek revenge too. Your voice echoes in the vast chamber as you insist that these people had no part in that cruelty. They are simply subjects trapped under the same tyrant who took everything from the dragon.<p><p>A deep, rumbling silence follows. Slowly, the dragon’s posture shifts from rage to grief, its wings sagging as the memories it tried to bury claw their way back. With a final, shuddering breath, it turns its gaze away from the villagers and back toward the troves of stolen treasure. “My fight is not with you,” it growls, voice low and heavy. “It is with the king.” Without another word, it gathers the treasure hoard into its jaws, and spreads its wings. The villagers scatter as the creature launches, leaving the cave trembling in its wake. You watch it disappear, relieved. Your trick worked. You spared the village. In the end, the dragon left in peace, and the people, shaken and humbled, realized they had never been the enemy at all. <p> " },
+    ending_util_overthrow: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/snake.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You plan your next move. Refresh to play again.<br><b>Utilitarianism</b><p> <p>The idea comes to you slowly, dangerously- an ember of rebellion sparked by the truth the dragon revealed. In order to save the most people, you must go after the King. As you stand before the dragon again, the air trembling with the low rumble of its breathing, you offer a different kind of proposal. Not a plea for mercy, and not a threat, an alliance. The dragon studies you with wary intelligence, smoke curling from its nostrils as you lay out your plan: expose the king, topple his rule, and end the cycle of bloodshed he created. Together, you could break his power and rebuild something better.<p><p>The dragon’s acceptance is not spoken in words, but in a heavy, deliberate nod and a softening of its stance. You seal your pact beneath the shadowed mouth of its cavern, knowing the path ahead is fraught with danger. Whispered conspiracies, secret meetings, and careful strategies begin to form between you. For the first time, the dragon sees a human not as prey or threat, but as a partner. And as you prepare for the coming conflict, a strange sense of purpose settles over you. Overthrowing the king will mean risking everything- your life, your reputation, your very soul, but with the dragon at your side, it finally feels possible.<p>" },
+    ending_util_compromise: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/scales.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You compromise with the dragon and foster peace. Refresh to play again. <br><b>Utilitarianism</b><p> <p>Instead of running or fighting, you choose the one path no one else would even consider: compromise. 	Your voice trembles at first, but the dragon listens, its massive head lowering, molten eyes narrowing with something that isn’t quite hostility. Slowly, painfully, the truth unfolds. The dragon isn’t here for the village at all. It seeks the king, the man who slaughtered its family and claimed their territory as his own. To the dragon, these lands still belong to the crown, the village is simply an extension of the king’s cruelty, another nest of followers who helped take everything from it. <p><p>You explain the truth- that these people are not soldiers, not servants of the king, and certainly not responsible for the blood spilled long before they were born. You tell the dragon the villagers fear the king as much as it does, that loyalty here is thin as dust. For a long moment, the dragon says nothing, only staring at you as if weighing the worth of every word. Then, with a low rumble of reluctant acceptance, it turns away. Its claws dig into the earth as it lifts off, carrying a mouthful of treasure from the King in its mouth- more insult to the king than harm to the village. The wind from its wings leaves you breathless, but alive. You watch it disappear into the horizon, knowing you’ve done the impossible: you talked down a dragon, and in doing so saved a village that will never fully understand what you risked.<p>" },
+    ending_util_hardroad: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/hard.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You fight. And you die. Refresh to play again. <br><b>Utilitarianism</b><p> <p>You charge into the dragon’s cave with every intention of ending the threat once and for all, the heat of its breath still lingering in your memory. The air inside is thick with smoke and the metallic scent of old blood. Shadows twist across the cave walls as the dragon’s massive shape rises from the darkness, its eyes glowing like molten gold. You grip your weapon tighter, nerves and determination battling in your chest. Every instinct screams at you to turn back, but you push forward anyway, hoping strength and courage will be enough.<p><p>But the moment the dragon moves, you realize how hopeless the fight truly is. Its power is overwhelming- the crash of its claws against your shield sends you staggering, and its roar drowns out your own voice. Blow after blow lands until you can barely stand. A final sweep of its tail hurls you against the cavern wall, pain exploding through your body. As the dragon looms over you, victorious, you understand too late that bravery alone cannot change fate. In the suffocating darkness, your struggle ends, and the cave falls silent once more.<p>" },
+
+  
+
+    
+    
+
+    // 
+    // moral relativism
+    // 
+    rel_1: {
+      question: "The ripple of your suggestion moves through the gathered villagers like a chill. What if the dragon isn’t evil? It’s a question no one dared voice aloud, one that unsettles them more than the creature itself. Whispered memories surface, rumours of royal soldiers disappearing, scorch marks in the forest, disappearances tied to the King’s men rather than the common folk. If morality depends on perspective, on history, then the idea of “good” or “evil” becomes difficult to pin to a single winged beast. You feel the pressure of their uncertain eyes, searching you for an answer they themselves can’t decide on. Standing at the crossroads of their fear and the unknown truth, you realise the path forward depends on the kind of morality you choose to uphold. Will you give the dragon the dignity of a sentient being with its own reasons? Place the villagers’ safety above all else? Or approach this crisis as something that demands understanding before action?",
+      options: [
+        { text: "Respect the dragon ", next: "rel_2_respect" },
+        { text: " Protect the villagers", next: "rel_2_protect" },
+        { text: "Negotiate with the dragon", next: "rel_2_negotiate" }
+      ]
+    },
+    rel_2_respect: {
+      question: "Respect, you decide, begins with humility. You cannot claim to know the dragon’s story, its motives, or the truth behind its wrath until you witness it yourself. The villagers exchange conflicted glances, some relieved you aren’t charging into blind violence, others terrified that restraint may doom them. Still, they allow you to go, trusting your judgment or too afraid to protest.On the road toward the dragon’s territory, the land tells fragments of stories, charred trees that look targeted rather than random, an abandoned outpost bearing the King’s crest crushed under claw marks too deliberate to be mere rage. Respect grows into curiosity, then into the uneasy feeling that something has been hidden from you. You sense that your next choice will shape how you gather truth, do you seek more context first, offer compromise before knowing the full picture, or attempt a careful moral balancing between the two sides?",
+      options: [
+        { text: "Seek deeper context", next: "rel_3_context" },
+        { text: "Commit to a middle solution early", next: "rel_comp" },
+        { text: "Attempt an early compromise between both sides", next: "rel_3_compromise" }
+      ]
+    },
+
+    rel_comp: {
+      question: "You press onward, guided by the belief that respect alone isn’t enough, you must act with fairness, even if neither side fully trusts you. The dragon’s cave looms ahead, a shadowed maw carved into the hillside. The villagers’ fears whisper in your memory, but so do the signs of the King’s aggression scattered along the path. Caught between two narratives, you feel the weight of every word you will speak, every choice you will make. If you approach with compassion, the villagers may see you as weak. If you show caution, the dragon may see you as another pawn of the King. The moral tightrope stretches thin, and now you must decide which guiding principle will shape the outcome. You weigh your next steps, and you decide to enter the cave. The dragon roars with furry. Perhaps  this was a bad idea. Still you press on. You tell the dragon your people mean no harm. The dragon, in a fit, explains to you what the King has done to his family. “He slaughtered them! He slaughtered them all! Now I seek revenge and go after his precious lands!” You tell him the King is not your friend either. He is no ones. What do you do now?",
+      options: [
+        { text: "Choose contextual fairness", next: "ending_rel_contextual" },
+        { text: "Adapt to whatever truth emerges", next: "ending_rel_adapt" },
+        { text: "Act opportunistically ", next: "ending_rel_opportunist" }
+      ]
+    },  
+
+
+    rel_2_protect: {
+      question: "You choose to protect first. Not because the dragon is monstrous, but because the terrified people before you deserve safety. They watch you with desperate hope, clinging to the belief that your decision is the right one. Protection, however, is not simple, violence may provoke more destruction, hesitation may cost lives, and negotiation risks misunderstanding. On the outskirts of the village, you pause to consider your approach. Smoke drifts faintly from the direction of the forest, perhaps a warning or simply the dragon’s presence. The moral dilemma sharpens: exploit a fleeting moment if one arises? Seek more context to avoid a disastrous assumption? Or try to craft a compromise that spares both sides before the situation escalates?",
+      options: [
+        { text: "Exploit an opportunity ", next: "rel_opportune" },
+        { text: "Learn more context", next: "rel_3_context" },
+        { text: "Attempt a compromise", next: "rel_3_compromise" }
+      ]
+    },
+  rel_opportune: {
+      question: "The world is rarely fair, and morality often shifts with circumstance. You recognise that in this conflict, timing might matter more than intention. A single moment of clarity, a vulnerability in the dragon’s stance, or even a shift in political power could change everything. You follow the trail into the forest, stepping through scorched earth and broken shields, and you begin to understand that doing what’s right may require bending your principles. The dragon’s cave pulses with heat in the distance. You weigh your next steps, and you decide to enter the cave. The dragon roars with furry. Perhaps  this was a bad idea. Still you press on. You tell the dragon your people mean no harm. The dragon, in a fit, explains to you what the King has done to his family. “He slaughtered them! He slaughtered them all! Now I seek revenge and go after his precious lands!” You tell him the King is not your friend either. He is no ones. What do you do now?",
+      options: [
+        { text: "Take the opportunistic route", next: "ending_rel_opportunist" },
+        { text: "Investigate deeper context", next: "ending_rel_contextual" },
+        { text: "Adapt to changing truths", next: "ending_rel_adapt" }
+      ]
+    },  
+
+    rel_2_negotiate: {
+      question: "You decide negotiation must come before judgment. The villagers are uneasy, some fear this is too idealistic, others cling to the hope that words might spare them from destruction. You travel closer to the dragon’s lair from the villagers directions, finding traces of battles fought only between it and the King’s forces. It has never struck the village directly. Not once. You weigh your next steps, and you decide to enter the cave. The dragon roars with furry. Perhaps  this was a bad idea. Still you press on. You tell the dragon your people mean no harm. The dragon, in a fit, explains to you what the King has done to his family. “He slaughtered them! He slaughtered them all! Now I seek revenge and go after his precious lands!” You tell him the King is not your friend either. He is no ones. What do you do now?",
+      options: [
+        { text: "Investigate more context ", next: "ending_rel_contextual" },
+        { text: "Adapt to the dragon’s story ", next: "ending_rel_adapt" },
+        { text: "Use opportunity if it emerges", next: "ending_rel_opportunist" }
+      ]
+    },
+    rel_3_context: {
+      question: "You slow down. Before making any moral declarations, you study the land, the patterns of destruction, the whispers carried by villagers and soldiers alike. The signs are contradictory yet revealing: the dragon avoids homes, targets only those bearing the King’s insignia, and leaves warnings rather than mass devastation. Ash-stained symbols carved into stone speak of ancient grievances, not arbitrary cruelty. Your understanding grows, but so does the weight of responsibility. Morality here must be shaped by the context you prioritise, do you focus on uncovering what the dragon endured, the villagers’ current fear, or the complex power struggle binding them all?",
+      options: [
+        { text: "Prioritise the dragon’s perspective", next: "rel_4" },
+        { text: "Prioritise the villagers’ perspective", next: "rel_4b" },
+      
+      ]
+    },
+    rel_4: {
+      question: "You step closer to the truth hidden in scorch marks and crushed royal banners. Every sign points to a creature acting not in hatred of the village, but in retaliation for a deeper injustice carried out by the King. The dragon’s fury feels almost precise, directed at a crown rather than a people. Understanding this shifts your worldview, this is not a tale of heroism but of intertwined harms. You go to speak with the dragon. It does not trust you, but you tell it you are not with the king. “If you are not with the King and have suffered as I have, then my fight is not with you.” The dragon explains how its family was slaughtered by the king, and how it seeks revenge and retribution. You ask it to go away. You now have to choose:",
+      options: [
+        { text: "Opportunistic", next: "ending_rel_opportunist" },
+        { text: "Contextual", next: "ending_rel_contextual" },
+        { text: "Adaptive ", next: "ending_rel_adapt" }
+      ]
+    },
+    rel_4b: {
+      question: "The villagers’ desperation rings louder in your mind as you gather their stories. Many have lost crops, livestock, security, though not their lives. Their suffering is real even if the dragon does not intend to target them. Their fear creates a moral force of its own, one you cannot ignore. And yet every tale they share is built on uncertainty, misunderstanding, or half-truths filtered through years of oppression from the King. Their fear shapes your next step. You go to the dragon and seek council with it. It tell you the sad story of how the King slaughtered its family. “I apologise, my fight is not with your village.” What do you do now",
+      options: [
+        { text: "Opportunistic route", next: "ending_rel_opportunist" },
+        { text: "Contextual route", next: "ending_rel_contextual" },
+        { text: "Adaptive route", next: "ending_rel_adapt" }
+      ]
+    },
+    
+
+     rel_3_compromise: {
+    question: "You choose compromise, an attempt to thread the needle of this impossible situation. You walk into the dragons cave and the dragon notices you. Immediately, it goes on the attack, you throw your hands up in the air, showing you do not seek harm. You explain the plight of the villagers and hope to find a compromie. The dragon explains how the King has slaughtered its family and its seeks retribution. It has picked this village as it believed there would be followers of the King. You tell how the King is terrible to his subjects. The dragon apologises for its actions.  You settle on a choice:",
+    options: [
+      { text: "Contextual compromise ", next: "ending_rel_contextual" },
+      { text: "Adaptive compromise ", next: "ending_rel_adapt" },
+      { text: " Opportunistic compromise ", next: "ending_rel_opportunist" }
+    ]
+  },
+
+    // endings
+    ending_rel_adapt: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/sword.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You adapt to a new way of life. Refresh to play again.<br><b>Moral Relativism</b><p> <p><p>As the encounter unfolds, you shift your approach with every revelation. Sometimes firm, sometimes yielding, you adjust to the dragon’s responses and the villagers’ fears. The dragon shares glimpses of its past: the loss of kin, the destruction of its home, and the ways the King forced it into conflict. Your flexibility allows a soft resolution: the dragon leaves with what it seeks, the villagers remain intact, and you find yourself neither fully hero nor villain.<p>Walking away, you feel the weight of moral fluidity. There are no absolutes here, only choices that adapt to the truths you uncover. By remaining attentive and flexible, you have minimized harm, guided events, and preserved life in a world too complex for simple judgments. And all the while, the dragon’s story lingers with you, a reminder that understanding past suffering is often more important than immediate judgment. You and the villagers adapt to a new way of life, hearing about the story of the dragon. Your village no longer bear the King’s arms. Now, you have become an independent village, that is self sufficient. The dragon occasionaly stops by to check on you guys. <p>" },
+    ending_rel_opportunist: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/heart.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You find opportunity. Refresh to play again.<br><b>Moral Relativism</b><p> <p> You seize the situation, aligning your actions with whichever side grants the greatest influence or survival. Observing the dragon, you note how it reacts to mentions of the King, to the villagers’ fear, and to your own calculated choices. You subtly guide it toward the King’s treasures, leverage villagers’ fear to prevent reckless attacks, and shape the confrontation in your favour. In exchange for your loyalty to the dragon, it will leave its treasure with the village. You decide to decide for the villagers. Whatever is right is a case by case basis. Whether you will remain with the dragon is another question. You are okay with a little white lie.<p><p> Morality here is a tool, not a law. You learn that sometimes guiding outcomes is more important than abstract principles. In the end, lives were spared, power was shifted, and your understanding of right and wrong has been expanded, though always on your own terms. The dragon’s past, its vendetta, its loss, and its cunning, was a factor you could exploit, reminding you that knowledge of history and motive can turn even the most dangerous creature into a calculable element in your plan. <p>" },
+    ending_rel_contextual: { ending: "<div style='text-align:center; margin-bottom:12px;'><img src='images/scales.png' alt='Survive Ending' style='max-width:100%; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);'></div> You seek more context and learn the truth. Refresh to play again.<br><b>Moral Relativism</b><p> <p>You act based on circumstances rather than rigid principles. Speaking directly with the dragon reveals truths no villager knew: its war is with the King, not the people. It shows you the scars of old battles, the charred remnants of its slain family, and the stolen treasures it seeks to reclaim. Using this context, you steer the confrontation away from bloodshed. The dragon hesitates, then takes its hoard and departs, leaving the village unharmed, the villagers shaken from the events but alive. The dragon claims it is taking its fight elsewhere. <p><p>In the aftermath, you reflect on the fragile nature of morality, what works here may fail elsewhere. Yet in this moment, the choice was clear. You did what was right for these circumstances, respecting both the dragon’s story and the villagers’ lives, even if the path may not be repeated in other lands. You leave with a sense that the dragon’s past, its grief, vengeance, and losses, has shaped this entire encounter, and understanding it was key to survival. <p>" }
+  };
+
+
+
+
+
+
+
+        let currentNode = "start";
+
+        function showNode(nodeKey) {
+     const node = adventure[nodeKey];
+     const quiz = document.getElementById('quiz');
+     if (node.ending) {
+      quiz.innerHTML = `<div class="result">${node.ending}</div>`;
+                return;
+            }
+            quiz.innerHTML = `
+                <div class="question">${node.question}</div>
+                <form id="adventureForm">
+                    <div class="options">
+               ${node.options.map((opt, i) => `
+                  <label>
+                <input type="radio" name="option" value="${opt.next}" required>
+                                ${opt.text}
+                            </label>
+                `).join('')}
+                    </div>
+                    <button type="submit">Begin Your Adventure</button>
+                </form>
+            `;
+            document.getElementById('adventureForm').onsubmit = function(e) {
+    e.preventDefault();
+    const selected = quiz.querySelector('input[name="option"]:checked');
+    if (!selected) return;
+    
+    playTwinkle();  //  play sound when clicked
+
+    currentNode = selected.value;
+    showNode(currentNode);
+};
+
+        }
+
+        showNode(currentNode);
+    </script>
+
+    <script>
+let fill = document.getElementById('barFill');
+let wrap = document.getElementById('loadWrap');
+let pct = 0;
+let duration = 5000; // 5 seconds
+let start = performance.now();
+
+function animate() {
+  let now = performance.now();
+  let t = (now - start) / duration;
+  pct = Math.min(t * 100, 100);
+  fill.style.width = pct + '%';
+
+  if (t < 1) {
+    requestAnimationFrame(animate);
+  } else {
+    wrap.style.opacity = '1';
+    let fade = wrap.animate([{opacity:1}, {opacity:0}], {
+      duration:600,
+      fill:'forwards'
+    });
+    fade.onfinish = () => wrap.style.display = 'none';
+  }
+}
+
+requestAnimationFrame(animate);
+</script>
+
+</body>
+</html>
+<style>
+/* background extend cause it sucks*/
+.quiz-container {
+  background: rgba(114, 130, 16, 0.7);
+  background-image: url('images/scroll.jpg');
+  background-size: cover;
+    background-repeat: no-repeat;
+  background-position: center;
+  padding: 48px 32px;
+  border-radius: 32px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.35);
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.7s cubic-bezier(.77,0,.18,1), opacity 0.5s;
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+
+
+/* typewriter effect thing */
+.typewriter-text {
+  min-height: 2.5em;
+  font-size: 1.3em;
+  margin-bottom: 24px;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.5em;
+  letter-spacing: 0.02em;
+  font-family: 'Roboto', serif;
+    color: #644d14;
+    text-shadow: 0 0 8px #eabf48, 0 0 2px #fff;
+}
+/* Quill stuf */
+#quill {
+  position: absolute;
+  width: 48px;
+  height: auto;
+  pointer-events: none;
+   z-index: 10;
+  transition: left 0.05s, top 0.05s;
+  filter: drop-shadow(0 0 8px #eabf48);
+  opacity: 0;
+}
+
+/* Fire DONT DELETE */
+#fire-canvas {
+  position: absolute;
+  pointer-events: none;
+   z-index: 11;
+  left: 0;
+  top: 0;
+  width: 64px;
+  height: 64px;
+  opacity: 0;
+}
+
+
+
+/*  glowing buttons */
+   .options {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 12px;
+  padding: 0;
+}
+.options button.choice-btn {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 14px 22px;
+  border-radius: 16px;
+  background: rgba(40, 20, 80, 0.35);
+  border: 2px solid transparent;
+  box-shadow: 0 0 16px 2px #eabf48, 0 0 4px 1px #fcf9fb inset;
+  transition: background 0.2s, box-shadow 0.3s, transform 0.15s;
+  font-size: 1.08em;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  outline: none;
+  animation: optionGlow 2.2s infinite alternate;
+}
+@keyframes optionGlow {
+   0% { box-shadow: 0 0 16px 2px #eabf48, 0 0 4px 1px #fcf9fb inset; }
+  100% { box-shadow: 0 0 28px 6px #614a12, 0 0 8px 2px #eabf48 inset; }
+}
+.options button.choice-btn:hover {
+  background: rgba(225, 112, 7, 0.25);
+  box-shadow: 0 0 24px 4px #f6eff3, 0 0 8px 2px #eabf48 inset;
+  border-color: #d7e4a1;
+  transform: scale(1.04);
+  animation: none;
+}
+.options button.choice-btn:active {
+    box-shadow: 0 0 32px 8px #eabf48, 0 0 12px 4px #f4f2f4 inset;
+  transform: scale(0.98);
+}
+
+/* sparkle animation for buttons */
+.choice-btn.sparkle::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 60%);
+  opacity: 0;
+  animation: sparkle 0.6s ease-out forwards;
+}
+@keyframes sparkle {
+  0%   { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+
+.options input[type="radio"] {
+  display: none;
+}
+
+/*  result TRANSITION*/
+.result {
+  font-size: 1.3em;
+  margin-top: 20px;
+  text-align: center;
+  color: #060820;
+  text-shadow: 0 0 12px #53400b, 0 0 2px #841616;
+  opacity: 0;
+  animation: fadeInResult 1s forwards;
+}
+
+
+
+
+
+
+@keyframes fadeInResult {
+  to { opacity: 1; }
+}
+   </style>
+
+
+<audio id="quill-audio" src="sound/quill.wav" preload="auto"></audio>
+   <script>
+
+class FireParticle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = Math.random() * 2 + 2;
+    this.alpha = 1;
+    this.vx = (Math.random() - 0.5) * 1.2;
+    this.vy = -Math.random() * 2.5 - 1.5;
+    this.life = Math.random() * 20 + 20;
+    this.color = `rgba(${220+Math.random()*35},${120+Math.random()*80},${30+Math.random()*40},`;
+  }
+     update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha -= 0.03;
+    this.life--;
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+    ctx.fillStyle = this.color + this.alpha + ')';
+    ctx.shadowColor = '#ffb300';
+    ctx.shadowBlur = 8;
+    ctx.fill();
+  }
+}
+
+/*  fire animation*/
+function createFireCanvas() {
+  let canvas = document.createElement('canvas');
+  canvas.id = 'fire-canvas';
+  canvas.width = 64;
+  canvas.height = 64;
+  canvas.style.opacity = 0;
+  document.body.appendChild(canvas);
+  return canvas;
+}
+
+
+function startFire(x, y) {
+  const canvas = document.getElementById('fire-canvas') || createFireCanvas();
+     canvas.style.opacity = 1;
+    canvas.style.left = (x-32) + 'px';
+    canvas.style.top = (y-32) + 'px';
+  fireParticles = [];
+  function animate() {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // Add new particles
+    for (let i=0; i<3; i++) {
+      fireParticles.push(new FireParticle(32, 48));
+    }
+    // Update and draw
+    fireParticles.forEach(p => { p.update(); p.draw(ctx); });
+    // Remove dead
+     fireParticles = fireParticles.filter(p => p.life > 0 && p.alpha > 0.05);
+    fireAnimationFrame = requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+function stopFire() {
+  const canvas = document.getElementById('fire-canvas');
+  if (canvas) canvas.style.opacity = 0;
+  if (fireAnimationFrame) cancelAnimationFrame(fireAnimationFrame);
+  fireParticles = [];
+}
+
+//*  typewriting with quill in same timing*/
+function typewriterEffect(text, container, callback) {
+  container.innerHTML = '';
+  let i = 0;
+  let quill = document.getElementById('quill');
+  if (!quill) {
+    quill = document.createElement('img');
+    quill.id = 'quill';
+    quill.src = 'images/quill.png';
+    document.body.appendChild(quill);
+  }
+  quill.style.opacity = 1;
+  quill.style.position = 'absolute';
+  quill.style.width = '48px';
+  quill.style.height = 'auto';
+  quill.style.zIndex = 10;
+
+  /*  rquill sound*/
+  const quillAudio = document.getElementById('quill-audio');
+  if (quillAudio) {
+     quillAudio.volume = 0.2; // Set volume to 20%
+    quillAudio.currentTime = 0;
+    quillAudio.loop = true;
+    quillAudio.play();
+  }
+  
+
+/* quill position*/
+  function getQuillPos() {
+    const rect = container.getBoundingClientRect();
+    const span = container.querySelector('span:last-child');
+    if (span) {
+      const spanRect = span.getBoundingClientRect();
+      return {
+        left: spanRect.right + window.scrollX - 16,
+        top: spanRect.bottom + window.scrollY - 36
+      };
+    } else {
+      return {
+        left: rect.left + window.scrollX + 8,
+        top: rect.top + window.scrollY + 8
+      };
+    }
+  }
+
+  function type() {
+    if (i <= text.length) {
+      container.innerHTML = '';
+      for (let j = 0; j < i; j++) {
+        let span = document.createElement('span');
+        span.textContent = text[j];
+        span.style.textShadow = '0 0 8px #eabf48, 0 0 2px #fff';
+        container.appendChild(span);
+      }
+      // Quill position
+      let pos = getQuillPos();
+      quill.style.left = pos.left + 'px';
+      quill.style.top = pos.top + 'px';
+      // Fire effect
+      startFire(pos.left + 36, pos.top + 36);
+      i++;
+      setTimeout(type, 5 + Math.random()*10);
+    } else {
+      quill.style.opacity = 0;
+      stopFire();
+      if (callback) callback();
+      if (quillAudio) {
+        quillAudio.loop = false;
+        quillAudio.pause();
+        quillAudio.currentTime = 0;
+      }
+
+      if (callback) callback();
+    }
+  }
+  type();
+}
+
+/*  writing...*/
+function animateScrollUnroll(container, cb) {
+  container.classList.add('unroll');
+  setTimeout(() => {
+    container.classList.remove('unroll');
+    if (cb) cb();
+  }, 500);
+}
+
+
+const originalShowNode = showNode;
+
+showNode = function(nodeKey) {
+     const node = adventure[nodeKey];
+    const quiz = document.getElementById('quiz');
+    animateScrollUnroll(quiz, () => {
+    if (node.ending) {
+      quiz.innerHTML = `<div class="result">${node.ending}</div>`;
+      setTimeout(() => {
+        const result = quiz.querySelector('.result');
+        if (result) result.style.opacity = 1;
+      }, 100);
+      return;
+    }
+    
+    quiz.innerHTML = `
+      <div class="typewriter-text"></div>
+      <form id="adventureForm" autocomplete="off">
+        <div class="options">
+          ${node.options.map((opt, i) => `
+            <button type="button" class="choice-btn" data-next="${opt.next}" data-index="${i}">
+              ${opt.text}
+            </button>
+          `).join('')}
+        </div>
+        <button type="submit" style="display:none"></button>
+      </form>
+    `;
+
+
+
+
+    // Animate question text
+    const tw = quiz.querySelector('.typewriter-text');
+    typewriterEffect(node.question, tw, () => {
+      // Quill disappears after typing
+    });
+
+    // magical button effect
+    quiz.querySelectorAll('.choice-btn').forEach((btn, idx) => {
+
+         btn.addEventListener('mousedown', () => {
+        btn.classList.add('sparkle');
+
+          btn.style.transform = 'scale(0.98)';
+        btn.style.boxShadow = '0 0 32px 8px #eabf48, 0 0 12px 4px #eb25a6 inset';
+      });
+      btn.addEventListener('mouseup', () => {
+
+          btn.style.transform = 'scale(1.04)';
+        btn.style.boxShadow = '0 0 24px 4px #eb25a6, 0 0 8px 2px #eabf48 inset';
+          setTimeout(() => btn.classList.remove('sparkle'), 600);
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+          btn.style.boxShadow = '';
+        btn.classList.remove('sparkle');
+      });
+      btn.addEventListener('click', () => {
+          
+        if (node.options[idx].onSelect) node.options[idx].onSelect();
+        currentNode = btn.getAttribute('data-next');
+        showNode(currentNode);
+    });
+ });
+  });
+};
+
+// quill fireee
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('fire-canvas')) createFireCanvas();
+   
+  let quill = document.getElementById('quill');
+  if (!quill) {
+    quill = document.createElement('img');
+      quill.id = 'quill';
+    quill.src = 'images/quill.png';
+      document.body.appendChild(quill);
+  }
+  quill.style.opacity = 0;
+});
+</script>
+
+
+
+
+

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Glitching Test Complete Room with Door Button</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+        #overlay {
+            position: fixed;
+            top: 24px;
+            right: 48px;
+            color: #00ffff;
+            font-family: monospace;
+            z-index: 10;
+            background: rgba(20,32,44,0.68);
+            border-radius: 6px;
+            padding: 9px 14px;
+            font-size: 1.1em;
+            pointer-events: none;
+            user-select: none;
+        }
+        #overlay.hide { display: none; }
+
+        /* screen button yes no maybe so */
+        #confirm {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            display: none;
+            pointer-events: auto;
+        }
+        #confirm .box {
+            background: rgba(10,18,22,0.95);
+            color: #dff9fb;
+            font-family: monospace;
+            padding: 18px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            min-width: 220px;
+            text-align: center;
+        }
+        #confirm .box p {
+            margin: 0 0 14px 0;
+            font-size: 1.05em;
+        }
+        #confirm .actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        #confirm button {
+            background: linear-gradient(180deg,#0f4b55,#08353b);
+            color: #e6ffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+        #confirm button.secondary {
+            background: linear-gradient(180deg,#2c2f31,#161718);
+            color: #bcdfe3;
+        }
+
+    </style>
+</head>
+<body>
+<div id="overlay">Click the right wall door</div>
+<audio id="doorSound" src="sound/door.mp3" preload="auto"></audio>
+
+<script>
+const doorSound = document.getElementById('doorSound'); 
+
+(function(){
+    if (!doorSound) return;
+    doorSound.volume = 0.9;
+    try { doorSound.load(); } catch(e){}
+
+    // 
+    function unlock() {
+        
+        doorSound.play().then(()=>{ doorSound.pause(); doorSound.currentTime = 0; }).catch(()=>{});
+        window.removeEventListener('pointerdown', unlock);
+        window.removeEventListener('touchstart', unlock);
+    }
+    window.addEventListener('pointerdown', unlock, {passive:true});
+    window.addEventListener('touchstart', unlock, {passive:true});
+})();
+</script>
+
+
+
+<div id="confirm" aria-hidden="true">
+    <div class="box" role="dialog" aria-modal="true">
+  <p>restart quiz?</p>
+        <div class="actions">
+     <button id="confirmYes">Yes</button>
+    <button id="confirmNo" class="secondary">No</button>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<script>
+ 
+
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x111111);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2, 7);
+
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Floor
+    const floor = new THREE.Mesh(
+     new THREE.PlaneGeometry(10, 10),
+       new THREE.MeshStandardMaterial({color:0xffffff, roughness: 0.3, metalness: 0.1})
+    );
+
+
+    floor.rotation.x = - Math.PI/2;
+    scene.add(floor);
+
+    // Walls
+
+    const wallMaterial = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.2});
+    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(10,5), wallMaterial);
+
+      backWall.position.set(0,2.5,-5);
+    scene.add(backWall);
+
+    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(10,5), wallMaterial);
+    leftWall.rotation.y = Math.PI/2;
+    leftWall.position.set(-5,2.5,0);
+    scene.add(leftWall);
+
+    const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(10,5), wallMaterial);
+   
+     rightWall.rotation.y = -Math.PI/2;
+    rightWall.position.set(5,2.5,0);
+    scene.add(rightWall);
+
+
+    const neonLight = new THREE.PointLight(0x00ffff, 2, 25);
+    neonLight.position.set(0, 4.5, 0);
+        scene.add(neonLight);
+
+    // door!?!??!?! =======
+  
+    const doorWidth = 1.2, doorHeight = 2.2, panelThickness = 0.12;
+
+    
+    const doorGroup = new THREE.Group();
+
+    doorGroup.position.set(5 - 0.06, 1.31, 0);
+    doorGroup.rotation.y = -Math.PI/2;
+    scene.add(doorGroup);
+
+   const panelMat = new THREE.MeshStandardMaterial({
+        color: 0xdfe6ea,
+        metalness: 0.95,
+        roughness: 0.18,
+        emissive: 0x001022,
+        emissiveIntensity: 0.02
+    });
+
+    const frameMat = new THREE.MeshStandardMaterial({
+        color: 0x222a30,
+        metalness: 0.9,
+        roughness: 0.1
+    });
+
+    // slide
+    const halfWidth = doorWidth / 2;
+
+  
+    const leftPanel = new THREE.Mesh(new THREE.BoxGeometry(halfWidth + 0.01, doorHeight, panelThickness), panelMat);
+    const rightPanel = new THREE.Mesh(new THREE.BoxGeometry(halfWidth + 0.01, doorHeight, panelThickness), panelMat);
+
+
+
+
+    // lab door vibe detail
+    const frameThickness = 0.04;
+    const topFrame = new THREE.Mesh(new THREE.BoxGeometry(doorWidth + 0.12, frameThickness, panelThickness + 0.01), frameMat);
+    topFrame.position.set(0, doorHeight/2 + frameThickness/2 - 0.02, 0.003);
+    doorGroup.add(topFrame);
+
+    const leftFrame = new THREE.Mesh(new THREE.BoxGeometry(frameThickness, doorHeight + 0.12, panelThickness + 0.01), frameMat);
+    leftFrame.position.set(-doorWidth/2 - 0.06, 0, 0.003);
+    doorGroup.add(leftFrame);
+    const rightFrame = leftFrame.clone();
+
+    rightFrame.position.set(doorWidth/2 + 0.06, 0, 0.003);
+    doorGroup.add(rightFrame);
+
+    
+    leftPanel.position.set(-halfWidth/2, 0, 0);
+    rightPanel.position.set(halfWidth/2, 0, 0);
+    doorGroup.add(leftPanel);
+    doorGroup.add(rightPanel);
+
+    // more sliding stuf
+    const handleGeom = new THREE.BoxGeometry(0.3, 0.06, 0.03);
+     const handleMat = new THREE.MeshStandardMaterial({color: 0x354147, metalness: 0.8, roughness: 0.12});
+    const handle = new THREE.Mesh(handleGeom, handleMat);
+       handle.position.set(halfWidth/2 - 0.18, 0.0, 0.065);
+    rightPanel.add(handle);
+
+    let doorOpen = false;
+   
+    let doorTarget = 0; 
+    let doorProgress = 0;
+    const openOffset = 0.9; 
+    function updateDoorAnimation() {
+        
+        doorProgress += (doorTarget - doorProgress) * 0.16;
+
+       
+        if (Math.abs(doorTarget - doorProgress) < 0.001) doorProgress = doorTarget;
+      
+        leftPanel.position.x = -halfWidth/2 - (openOffset * doorProgress);
+        rightPanel.position.x = halfWidth/2 + (openOffset * doorProgress);
+   
+        const glow = 0.04 * doorProgress;
+        leftPanel.material.emissiveIntensity = 0.03 + glow;
+        rightPanel.material.emissiveIntensity = 0.03 + glow;
+    }
+
+    // ===== glitchy text =====
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    function glitchString(str, glitchRate = 0.13) {
+        let s = "";
+        const glitchChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&';
+        for (let i = 0; i < str.length; ++i) {
+            if (str[i] !== ' ' && Math.random() < glitchRate) {
+                s += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+            } else {
+                s += str[i];
+            }
+        }
+        return s;
+    }
+
+    function drawGlitchText(time, message) {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = 'bold 96px Arial';
+
+    let glitched = Math.random() < 0.17;
+    let displayText = glitched ? glitchString(message, 0.22) : message;
+        let yJitter = glitched ? (Math.random()-0.5)*20 : 0;
+        let xJitter = glitched ? (Math.random()-0.5)*26 : 0;
+        let skew = glitched ? (Math.random()-0.5)*0.13 : 0;
+
+        ctx.save();
+        ctx.setTransform(
+            1, skew,
+            0, 1,
+            0, 0
+        );
+        ctx.shadowColor = '#00ffff';
+        
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#00ffff';
+        ctx.fillText(displayText, canvas.width/2 + xJitter, canvas.height/2 + yJitter);
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#e0f8ff';
+        ctx.fillText(displayText, canvas.width/2 + xJitter, canvas.height/2 + yJitter);
+        ctx.restore();
+    }
+
+    
+    
+    const textTexture = new THREE.CanvasTexture(canvas);
+
+      const screenGeometry = new THREE.BoxGeometry(3,1.1,0.1);
+    const screenMaterial = new THREE.MeshStandardMaterial({
+        color: 0x222288,
+        metalness: 0.9,
+        roughness: 0.2,
+        map: textTexture,
+        emissive: 0x003366,
+        emissiveMap: textTexture,
+        emissiveIntensity: 0.5
+    });
+       
+     const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+
+    screen.position.set(0, 2, 0);
+    scene.add(screen);
+
+    // CLOCK OH YEA
+    
+    const clockCanvas = document.createElement('canvas');
+      clockCanvas.width = 420;
+    clockCanvas.height = 150;
+    const clockCtx = clockCanvas.getContext('2d');
+
+    function drawClockText() {
+        clockCtx.clearRect(0,0,clockCanvas.width,clockCanvas.height);
+        // Background for contrast
+        clockCtx.fillStyle = "#07111a";
+        clockCtx.fillRect(0,0,clockCanvas.width,clockCanvas.height);
+
+        const now = new Date();
+            let h = now.getHours().toString().padStart(2,"0");
+        let m = now.getMinutes().toString().padStart(2,"0");
+        let s = now.getSeconds().toString().padStart(2,"0");
+        // Digital display: HH:MM:SS
+        let timeStr = `${h}:${m}:${s}`;
+
+        
+        const showColon = (now.getSeconds() % 2) === 0;
+        if (!showColon) {
+         
+            timeStr = `${h} ${m}:${s}`;
+        }
+
+        clockCtx.font = "bold 72px monospace";
+
+        clockCtx.textAlign = "center";
+        clockCtx.textBaseline = "middle";
+        // Glow layer
+        clockCtx.shadowColor = "#00ffff";
+          clockCtx.shadowBlur = 22;
+        clockCtx.fillStyle = "#00ffff";
+          clockCtx.fillText(timeStr, clockCanvas.width/2, clockCanvas.height/2);
+          
+          // Crisp layer
+        clockCtx.shadowBlur = 0;
+        clockCtx.fillStyle = "#d0f8fa";
+        clockCtx.fillText(timeStr, clockCanvas.width/2, clockCanvas.height/2);
+    }
+
+
+
+    const clockTexture = new THREE.CanvasTexture(clockCanvas);
+      clockTexture.minFilter = THREE.LinearFilter;
+    clockTexture.needsUpdate = true;
+
+    const clockGeometry = new THREE.BoxGeometry(1.65,0.6,0.08);
+    const clockMaterial = new THREE.MeshStandardMaterial({
+        color:0x102330,
+        metalness: 0.3,
+         roughness: 0.15,
+        map: clockTexture,
+        emissive: 0x233366,
+        emissiveMap: clockTexture,
+        emissiveIntensity: 0.83
+    });
+    const clockScreen = new THREE.Mesh(clockGeometry, clockMaterial);
+  
+    
+    clockScreen.position.set(-5 + 0.06, 2.5, 0); 
+    clockScreen.rotation.y = Math.PI/2;
+    scene.add(clockScreen);
+
+
+    drawClockText();
+    clockTexture.needsUpdate = true;
+
+
+
+
+    // ceiling 
+    const ceilingCanvas = document.createElement('canvas');
+   
+   
+    ceilingCanvas.width = 1024;
+    ceilingCanvas.height = 1024;
+    const cctx = ceilingCanvas.getContext('2d');
+
+    function drawCeilingPattern(time) {
+        // subtle dark bluish base
+        cctx.clearRect(0,0,ceilingCanvas.width, ceilingCanvas.height);
+        const w = ceilingCanvas.width, h = ceilingCanvas.height;
+      
+    
+     
+        const baseGrad = cctx.createLinearGradient(0,0,0,h);
+        baseGrad.addColorStop(0, '#071822');
+       
+       
+        baseGrad.addColorStop(1, '#021017');
+        cctx.fillStyle = baseGrad;
+        cctx.fillRect(0,0,w,h);
+
+        
+
+
+        //
+        cctx.globalCompositeOperation = 'lighter';
+        const rg = cctx.createRadialGradient(w/2, h/2, 80, w/2, h/2, Math.max(w,h)*0.7);
+        const glowPhase = Math.sin(time * 0.5) * 0.2 + 0.8;
+        rg.addColorStop(0, `rgba(0,160,180,${0.06 * glowPhase})`);
+        rg.addColorStop(1, 'rgba(0,0,0,0)');
+        cctx.fillStyle = rg;
+        cctx.fillRect(0,0,w,h);
+        cctx.globalCompositeOperation = 'source-over';
+    }
+
+    const ceilingTexture = new THREE.CanvasTexture(ceilingCanvas);
+   
+    ceilingTexture.minFilter = THREE.LinearFilter;
+    ceilingTexture.magFilter = THREE.LinearFilter;
+
+    const ceilingMat = new THREE.MeshStandardMaterial({
+        color: 0x0b2630,
+        metalness: 0.1,
+        roughness: 0.6,
+        emissive: 0x003844,
+        emissiveMap: ceilingTexture,
+        emissiveIntensity: 0.18,
+        side: THREE.FrontSide
+    });
+    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(10,10), ceilingMat);
+    // THIS IS GLOW DONT DELETE
+   
+    ceiling.rotation.x = Math.PI/2;
+    ceiling.position.set(0, 5, 0.0);
+    scene.add(ceiling);
+
+
+
+   
+
+
+    // SCREEN
+    function decorateScreenCanvas() {
+  
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+     
+        ctx.fillStyle = 'rgba(0,0,0,0.04)';
+        for (let y = 0; y < canvas.height; y += 2) {
+            ctx.fillRect(0, y, canvas.width, 1);
+        }
+
+        const g = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.5);
+           g.addColorStop(0, 'rgba(255,255,255,0.14)');
+           g.addColorStop(0.6, 'rgba(255,255,255,0.03)');
+          g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height * 0.5);
+
+        const vg = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.height*0.1, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height));
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+       
+        vg.addColorStop(1, 'rgba(0,0,0,0.35)');
+         
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = vg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    // animation for text on s creen
+    function animate() {
+        requestAnimationFrame(animate);
+
+        const t = performance.now() * 0.001;
+       
+        camera.position.set(0, 2, 7);
+        camera.lookAt(0, 2, 0);
+
+        drawGlitchText(t, "Do Test Aagin");
+
+        
+        decorateScreenCanvas();
+
+
+        textTexture.needsUpdate = true;
+
+    
+        const pulse = 0.45 + Math.abs(Math.sin(t * 1.8)) * 0.55; // range ~0.45..1.0
+        if (screen.material && 'emissiveIntensity' in screen.material) {
+            screen.material.emissiveIntensity = pulse;
+            // also slightly brighten color when glitching
+            screen.material.emissive.setHex(0x003366);
+        }
+
+        
+       
+        drawClockText();
+        clockTexture.needsUpdate = true;
+
+        
+        updateDoorAnimation();
+
+        drawCeilingPattern(t * 0.7);
+        ceilingTexture.needsUpdate = true;
+
+            renderer.render(scene, camera);
+    } 
+    animate();
+
+
+
+
+      const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    function isDescendant(obj, parent) {
+        let o = obj;
+        while (o) {
+            if (o === parent) return true;
+            o = o.parent;
+        }
+        return false;
+    }
+
+    // new window stuff more and also door
+    const confirmEl = document.getElementById('confirm');
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo = document.getElementById('confirmNo');
+
+    confirmYes.addEventListener('click', () => {
+     
+        window.location.href = 'index.html';
+        confirmEl.style.display = 'none';
+        confirmEl.setAttribute('aria-hidden', 'true');
+
+    });
+            confirmNo.addEventListener('click', () => {
+        confirmEl.style.display = 'none';
+        confirmEl.setAttribute('aria-hidden', 'true');
+    });
+
+    renderer.domElement.addEventListener('pointerdown', function(event){
+        const rect = renderer.domElement.getBoundingClientRect();
+          mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        
+        const intersects = raycaster.intersectObjects([leftPanel, rightPanel, screen], true);
+        if (intersects.length > 0) {
+            const first = intersects[0];
+            
+            if (isDescendant(first.object, screen)) {
+                confirmEl.style.display = 'block';
+                confirmEl.setAttribute('aria-hidden', 'false');
+                return;
+            }
+
+            //  door click
+           const hitPanel = intersects.find(i => isDescendant(i.object, leftPanel) || isDescendant(i.object, rightPanel));
+if (hitPanel) {
+
+    doorOpen = !doorOpen;
+    doorTarget = doorOpen ? 1 : 0;
+
+    
+    if (doorSound) {
+        doorSound.currentTime = 0; 
+        doorSound.play().catch((e)=>{ 
+            console.error("Audio Play Failed (Browser Restriction or Load Error):", e.message);
+        });
+    }
+    // --- END CHANGE ---
+
+    document.getElementById('overlay').classList.add('hide');
+}
+
+        }
+    });
+
+  
+
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+
+
+
+// bed time zzz
+(function(){
+
+    const bedGroup = new THREE.Group();
+
+    const bedWidth = 0.9, bedLength = 2.0, mattressThickness = 0.22;
+    const legHeight = 0.18;
+   
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0x222a30, metalness: 0.95, roughness: 0.12 });
+    const mattressMat = new THREE.MeshStandardMaterial({ color: 0x8b3a3a, metalness: 0.05, roughness: 0.7 });
+
+   
+    const frameThickness = 0.04;
+    const frameTop = new THREE.Mesh(new THREE.BoxGeometry(bedWidth + 2*frameThickness, frameThickness, bedLength + 2*frameThickness), metalMat);
+    frameTop.position.set(0, legHeight + mattressThickness + frameThickness/2, 0);
+    bedGroup.add(frameTop);
+
+bedGroup.position.set(-4.5, 0.5, 0.6); 
+bedGroup.rotation.y = 0; 
+
+scene.add(bedGroup);
+
+scene.add(bedGroup);
+
+    bedGroup.userData.isBed = true;
+
+    const sleepConfirm = document.createElement('div');
+    sleepConfirm.id = 'sleepConfirm';
+     
+    sleepConfirm.setAttribute('aria-hidden', 'true');
+    Object.assign(sleepConfirm.style, {
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 999,
+        display: 'none',
+        pointerEvents: 'auto'
+    });
+
+    const box = document.createElement('div');
+   
+    Object.assign(box.style, {
+        background: 'rgba(10,18,22,0.95)',
+        color: '#dff9fb',
+        fontFamily: 'monospace',
+        padding: '18px 20px',
+        borderRadius: '8px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.6)',
+        minWidth: '220px',
+        textAlign: 'center'
+    });
+    
+    const p = document.createElement('p');
+   
+    p.textContent = 'sleep?';
+    Object.assign(p.style, { margin: '0 0 14px 0', fontSize: '1.05em' });
+    box.appendChild(p);
+
+    const actions = document.createElement('div');
+        Object.assign(actions.style, { display: 'flex', justifyContent: 'center', gap: '12px' });
+
+    const yesBtn = document.createElement('button');
+    yesBtn.textContent = 'Yes';
+    Object.assign(yesBtn.style, {
+        background: 'linear-gradient(180deg,#0f4b55,#08353b)',
+        color: '#e6ffff',
+        border: 'none',
+      padding: '8px 14px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontFamily: 'monospace',
+        fontSize: '0.95em'
+    });
+
+    const noBtn = document.createElement('button');
+    noBtn.textContent = 'No';
+    Object.assign(noBtn.style, {
+        background: 'linear-gradient(180deg,#2c2f31,#161718)',
+        color: '#bcdfe3',
+        border: 'none',
+        padding: '8px 14px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontFamily: 'monospace',
+        fontSize: '0.95em'
+    });
+
+    actions.appendChild(yesBtn);
+    actions.appendChild(noBtn);
+    box.appendChild(actions);
+    sleepConfirm.appendChild(box);
+    document.body.appendChild(sleepConfirm);
+
+
+
+
+    const sleepOverlay = document.createElement('div');
+    sleepOverlay.id = 'sleepOverlay';
+    Object.assign(sleepOverlay.style, {
+        position: 'fixed',
+        left: '0',
+        top: '0',
+        width: '100%',
+        height: '100%',
+        background: '#000',
+        opacity: '1',
+        display: 'none',
+        zIndex: 2000,
+        pointerEvents: 'none'
+    });
+    document.body.appendChild(sleepOverlay);
+
+
+
+    renderer.domElement.addEventListener('pointerdown', function(event){
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersectsBed = raycaster.intersectObject(bedGroup, true);
+        if (intersectsBed.length > 0) {
+      
+            sleepConfirm.style.display = 'block';
+            sleepConfirm.setAttribute('aria-hidden', 'false');
+        }
+    });
+
+    noBtn.addEventListener('click', () => {
+        sleepConfirm.style.display = 'none';
+        sleepConfirm.setAttribute('aria-hidden', 'true');
+    });
+
+    yesBtn.addEventListener('click', () => {
+        
+        sleepConfirm.style.display = 'none';
+        sleepConfirm.setAttribute('aria-hidden', 'true');
+
+        // show blackout for 5 seconds
+        sleepOverlay.style.display = 'block';
+       
+
+        setTimeout(() => {
+            sleepOverlay.style.display = 'none';
+        }, 5000);
+    });
+
+})();
+
+</script>
+</body>
+</html>
