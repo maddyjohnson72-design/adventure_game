@@ -582,7 +582,7 @@ function playTwinkle() {
     <div class="quiz-container" id="quiz">
 
     </div>
-     <img id="quill" src="images/quill.png">
+
 
      
     
@@ -1549,17 +1549,7 @@ requestAnimationFrame(animate);
     color: #644d14;
     text-shadow: 0 0 8px #eabf48, 0 0 2px #fff;
 }
-/* Quill stuf */
-#quill {
-  position: absolute;
-  width: 48px;
-  height: auto;
-  pointer-events: none;
-   z-index: 10;
-  transition: left 0.05s, top 0.05s;
-  filter: drop-shadow(0 0 8px #eabf48);
-  opacity: 0;
-}
+
 
 /* Fire DONT DELETE */
 #fire-canvas {
@@ -1685,8 +1675,7 @@ class FireParticle {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
     ctx.fillStyle = this.color + this.alpha + ')';
-    ctx.shadowColor = '#ffb300';
-    ctx.shadowBlur = 8;
+   
     ctx.fill();
   }
 }
@@ -1713,7 +1702,7 @@ function startFire(x, y) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
     // Add new particles
-    for (let i=0; i<3; i++) {
+    for (let i=0; i<1; i++) {
       fireParticles.push(new FireParticle(32, 48));
     }
     // Update and draw
@@ -1737,12 +1726,13 @@ function typewriterEffect(text, container, callback) {
   container.innerHTML = '';
   let i = 0;
   let quill = document.getElementById('quill');
-  if (!quill) {
-    quill = document.createElement('img');
-    quill.id = 'quill';
-    quill.src = 'images/quill.png';
-    document.body.appendChild(quill);
-  }
+  if (i < text.length) {
+  let span = document.createElement('span');
+  span.textContent = text[i];
+  span.style.textShadow = '0 0 8px #eabf48, 0 0 2px #fff';
+  container.appendChild(span);
+}
+
   quill.style.opacity = 1;
   quill.style.position = 'absolute';
   quill.style.width = '48px';
@@ -1852,10 +1842,10 @@ showNode = function(nodeKey) {
 
 
 
-    // Animate question text
+   
     const tw = quiz.querySelector('.typewriter-text');
     typewriterEffect(node.question, tw, () => {
-      // Quill disappears after typing
+      
     });
 
     // magical button effect
@@ -1903,6 +1893,10 @@ window.addEventListener('DOMContentLoaded', () => {
   quill.style.opacity = 0;
 });
 </script>
+
+
+
+
 
 
 
